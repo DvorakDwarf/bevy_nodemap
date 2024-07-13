@@ -14,6 +14,10 @@ impl NodeData {
             x, y, z
         };
     }
+    
+    pub fn get_vec(&self) -> Vec3 {
+        return Vec3::new(self.x, self.y, self.z)
+    }
 }
 
 #[derive(Debug, Default)]
@@ -22,11 +26,11 @@ pub struct EdgeData {
 }
 
 impl EdgeData {
-    pub fn new(length: f32) -> EdgeData {
-        return EdgeData {
-            length
-        };
-    }
+    // pub fn new(length: f32) -> EdgeData {
+    //     return EdgeData {
+    //         length
+    //     };
+    // }
 }
 
 #[derive(Resource)]
