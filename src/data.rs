@@ -5,18 +5,31 @@ use petgraph::graph::Graph;
 pub struct NodeData {
     pub x: f32,
     pub y: f32,
-    pub z: f32
+    pub z: f32,
+    pub color: Color
 }
 
 impl NodeData {
     pub fn new(x: f32, y: f32, z: f32) -> NodeData {
         return NodeData {
-            x, y, z
+            x, y, z,
+            color: Color::RED,
         };
     }
     
     pub fn get_vec(&self) -> Vec3 {
         return Vec3::new(self.x, self.y, self.z)
+    }
+}
+
+impl From<Vec3> for NodeData {
+    fn from(vec: Vec3) -> NodeData {
+        return NodeData {
+            x: vec.x,
+            y: vec.y,
+            z: vec.z,
+            color: Color::RED
+        }
     }
 }
 

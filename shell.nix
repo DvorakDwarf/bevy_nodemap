@@ -1,23 +1,36 @@
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
-  nativeBuildInputs = with pkgs; [ 
-      rustc 
-      cargo 
-      gcc 
-      rustfmt 
-      clippy 
+  # nativeBuildInputs = with pkgs; [ 
+  #     pkg-config
 
-      pkg-config
+  #     systemd
+  #     udev
+  #     alsa-lib
+  #     vulkan-loader
+  #     xorg.libX11
+  #     xorg.libXcursor
+  #     xorg.libXi
+  #     xorg.libXrandr
+  #     libxkbcommon
+  #     cmake
+  # ];
 
-      systemd
-      udev
-      alsa-lib
-      vulkan-loader
-      xorg.libX11
-      xorg.libXcursor
-      xorg.libXi
-      xorg.libXrandr
-      libxkbcommon
+  nativeBuildInputs = with pkgs; [
+    rustc 
+    cargo 
+    gcc 
+    rustfmt 
+    clippy 
+    
+    pkg-config
+  ];
+  buildInputs = with pkgs; [
+    udev alsa-lib vulkan-loader
+
+    # To use the x11 feature
+    xorg.libX11 xorg.libXcursor xorg.libXi xorg.libXrandr 
+    # To use the wayland feature
+    libxkbcommon wayland 
   ];
 
   #Found I needed this as well
