@@ -1,63 +1,16 @@
-use rand::Rng;
-use bevy::{core_pipeline::core_3d::graph, gizmos::gizmos, prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_billboard::prelude::*;
-use petgraph::graph::{Graph, NodeIndex};
 use bevy_flycam::prelude::*;
 
 mod data;
-use data::{EdgeData, GlobalState, NodeData};
+mod graph_gen;
 
-//TODO
-//Create resource with graph XXX
-//Create spheres based on graph XXX
-//Connect them with lines
-
-fn generate_graph(n_nodes: usize, n_neighbors: usize, distance: i32) -> Graph::<NodeData, EdgeData> {
-    let mut graph = Graph::<NodeData, EdgeData>::new();
-
-    let mut current_pos = Vec3::new(0.0, 0.0, 0.0);
-    let mut node_data = NodeData::from(current_pos);
-    node_data.color = Color::BLUE;
-
-    let mut source = graph.add_node(node_data);
-
-    let mut rng = rand::thread_rng();
-    for _ in 0..n_nodes {
-        for i in 0..rng.gen_range(1..=n_neighbors) {
-            let mut neighbor_pos = current_pos.clone();
-            neighbor_pos.x = (rng.gen_range(-distance..=distance)) as f32;
-            neighbor_pos.y = (rng.gen_range(-distance..=distance)) as f32;
-            neighbor_pos.z = (rng.gen_range(-distance..=distance)) as f32;
-
-            let neighbor = graph.add_node(NodeData::from(neighbor_pos));
-            graph.add_edge(source, neighbor, EdgeData::default());
-
-            if i == n_neighbors-1 {
-                source = neighbor;
-                current_pos = neighbor_pos;
-            }
-        }        
-    }
-
-    return graph;
-}
+use data::GlobalState;
+use graph_gen::generate_graph;
 
 fn main() {
-    // let mut graph = Graph::<NodeData, EdgeData>::new();
-    // let n1 = graph.add_node(NodeData::new(0.0, 0.0, 0.0));
-    // let n2 = graph.add_node(NodeData::new(5.0, 0.0, 0.0));
-    // let n3 = graph.add_node(NodeData::new(2.5, 2.5, 0.0));
-    // let n4 = graph.add_node(NodeData::new(10.0, 0.0, 0.0));
-
-    // graph.extend_with_edges(&[
-    //     (n1, n2), (n2, n3), (n3, n1),
-    //     (n2, n4)
-    // ]);
-
-    // dbg!(&graph);
-
-    let graph = generate_graph(30, 2, 10);
+    let graph = generate_graph(200, 3, 1000.0);
     let global_state = GlobalState::new(graph);
 
     App::new()
@@ -77,32 +30,32 @@ fn main() {
         .run();
 }
 
-fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let fira_sans_regular_handle = asset_server.load("FiraSans-Regular.ttf");
-    commands.spawn(BillboardTextBundle {
-        transform: Transform::from_scale(Vec3::splat(0.0085)),
-        text: Text::from_sections([
-            TextSection {
-                value: "IMPORTANT".to_string(),
-                style: TextStyle {
-                    font_size: 60.0,
-                    font: fira_sans_regular_handle.clone(),
-                    color: Color::ORANGE,
-                },
-            },
-            TextSection {
-                value: " text".to_string(),
-                style: TextStyle {
-                    font_size: 60.0,
-                    font: fira_sans_regular_handle.clone(),
-                    color: Color::WHITE,
-                },
-            },
-        ])
-        .with_justify(JustifyText::Center),
-        ..default()
-    });
-}
+// fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
+//     let fira_sans_regular_handle = asset_server.load("FiraSans-Regular.ttf");
+//     commands.spawn(BillboardTextBundle {
+//         transform: Transform::from_scale(Vec3::splat(0.0085)),
+//         text: Text::from_sections([
+//             TextSection {
+//                 value: "IMPORTANT".to_string(),
+//                 style: TextStyle {
+//                     font_size: 60.0,
+//                     font: fira_sans_regular_handle.clone(),
+//                     color: Color::ORANGE,
+//                 },
+//             },
+//             TextSection {
+//                 value: " text".to_string(),
+//                 style: TextStyle {
+//                     font_size: 60.0,
+//                     font: fira_sans_regular_handle.clone(),
+//                     color: Color::WHITE,
+//                 },
+//             },
+//         ])
+//         .with_justify(JustifyText::Center),
+//         ..default()
+//     });
+// }
 
 fn spawn_graph(
     mut commands: Commands,
