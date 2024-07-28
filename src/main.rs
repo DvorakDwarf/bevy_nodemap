@@ -30,33 +30,6 @@ fn main() {
         .run();
 }
 
-// fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
-//     let fira_sans_regular_handle = asset_server.load("FiraSans-Regular.ttf");
-//     commands.spawn(BillboardTextBundle {
-//         transform: Transform::from_scale(Vec3::splat(0.0085)),
-//         text: Text::from_sections([
-//             TextSection {
-//                 value: "IMPORTANT".to_string(),
-//                 style: TextStyle {
-//                     font_size: 60.0,
-//                     font: fira_sans_regular_handle.clone(),
-//                     color: Color::ORANGE,
-//                 },
-//             },
-//             TextSection {
-//                 value: " text".to_string(),
-//                 style: TextStyle {
-//                     font_size: 60.0,
-//                     font: fira_sans_regular_handle.clone(),
-//                     color: Color::WHITE,
-//                 },
-//             },
-//         ])
-//         .with_justify(JustifyText::Center),
-//         ..default()
-//     });
-// }
-
 fn spawn_graph(
     mut commands: Commands,
     mut meshes:ResMut<Assets<Mesh>>,
@@ -135,38 +108,38 @@ fn draw_lines(mut gizmos: Gizmos, global_state: Res<GlobalState>) {
     }
 }
 
-fn spawn_cube(
-    mut commands: Commands,
-    mut meshes:ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>> 
-) {
-    let default_material = StandardMaterial {
-        base_color: Color::rgb(0.8, 0.7, 0.6),
-        reflectance: 0.02,
-        unlit: false,
-        ..default()
-    };
-    let material_handle = materials.add(default_material.clone());
+// fn spawn_cube(
+//     mut commands: Commands,
+//     mut meshes:ResMut<Assets<Mesh>>,
+//     mut materials: ResMut<Assets<StandardMaterial>> 
+// ) {
+//     let default_material = StandardMaterial {
+//         base_color: Color::rgb(0.8, 0.7, 0.6),
+//         reflectance: 0.02,
+//         unlit: false,
+//         ..default()
+//     };
+//     let material_handle = materials.add(default_material.clone());
 
 
-    let cube = PbrBundle {
-        mesh: meshes.add(Mesh::from(Cuboid::new(1.0, 1.0, 1.0))),
-        material: material_handle,
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..default()
-    };
+//     let cube = PbrBundle {
+//         mesh: meshes.add(Mesh::from(Cuboid::new(1.0, 1.0, 1.0))),
+//         material: material_handle,
+//         transform: Transform::from_xyz(0.0, 0.0, 0.0),
+//         ..default()
+//     };
 
-    commands.spawn(cube);
-}
+//     commands.spawn(cube);
+// }
 
-fn spawn_camera(mut commands: Commands) {
-    let camera = Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 0.0, 51.0),
-        ..default()
-    };
+// fn spawn_camera(mut commands: Commands) {
+//     let camera = Camera3dBundle {
+//         transform: Transform::from_xyz(0.0, 0.0, 51.0),
+//         ..default()
+//     };
 
-    commands.spawn(camera);
-}
+//     commands.spawn(camera);
+// }
 
 fn spawn_light(
     mut commands: Commands,
