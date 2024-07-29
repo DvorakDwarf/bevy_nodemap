@@ -829,6 +829,7 @@ dependencies = [
  "egui",
  "petgraph",
  "rand",
+ "rand_chacha",
 ]
 
 [[package]]

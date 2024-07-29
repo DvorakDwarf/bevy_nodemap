@@ -1,18 +1,19 @@
 use std::f32::consts::PI;
 
 use petgraph::graph::Graph;
-use rand::{self, rngs::ThreadRng, Rng};
+use rand::{self, Rng};
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
 use bevy::prelude::*;
 
 use crate::data::{BlobType, EdgeData, NodeData, Universe};
 
-fn generate_disc_blob(universe: &Universe) -> Graph::<NodeData, EdgeData> {
+fn generate_disc_blob(universe: &Universe, mut rng: ChaCha8Rng) -> Graph::<NodeData, EdgeData> {
     let mut graph = Graph::<NodeData, EdgeData>::new();
     
     //TODO: Arguments-to-be
-    let mut rng = rand::thread_rng();
-    let radius: f32 = 30.0;
-    let height: f32 = 10.0;
+    let radius: f32 = 10.0;
+    let height: f32 = 5.0;
 
     //Create the first blob origin
     //TODO: Place the origin in a random location  
@@ -38,8 +39,9 @@ fn generate_disc_blob(universe: &Universe) -> Graph::<NodeData, EdgeData> {
 }
 
 pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
-    match universe.blob_variant {
-        BlobType::Disc => return generate_disc_blob(&universe),
+    let rng = ChaCha8Rng::seed_from_u64(1337);
 
+    match universe.blob_variant {
+        BlobType::Disc => return generate_disc_blob(&universe, rng),
     }
 }
