@@ -1,22 +1,18 @@
 use bevy::prelude::*;
 use petgraph::graph::Graph;
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Default)]
 pub struct NodeData {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub color: Color
+    pub color: Color,
+    pub n_connections: u32
 }
 
-impl NodeData {
-    pub fn new(x: f32, y: f32, z: f32) -> NodeData {
-        return NodeData {
-            x, y, z,
-            color: Color::RED,
-        };
-    }
-    
+impl NodeData {    
     pub fn get_vec(&self) -> Vec3 {
         return Vec3::new(self.x, self.y, self.z)
     }
@@ -24,11 +20,13 @@ impl NodeData {
 
 impl From<Vec3> for NodeData {
     fn from(vec: Vec3) -> NodeData {
+        let mut rng = ChaCha8Rng::seed_from_u64(1337);
         return NodeData {
             x: vec.x,
             y: vec.y,
             z: vec.z,
-            color: Color::RED
+            color: Color::RED,
+            n_connections: rng.gen_range(0..7)
         }
     }
 }

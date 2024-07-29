@@ -39,7 +39,7 @@ fn generate_disc_blob(universe: &Universe, mut rng: ChaCha8Rng) -> Graph::<NodeD
 }
 
 pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
-    let rng = ChaCha8Rng::seed_from_u64(1337);
+    let mut rng = ChaCha8Rng::seed_from_u64(1337);
 
     match universe.blob_variant {
         BlobType::Disc => return generate_disc_blob(&universe, rng),
