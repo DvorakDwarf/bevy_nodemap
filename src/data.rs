@@ -1,15 +1,17 @@
 use bevy::prelude::*;
 use petgraph::graph::Graph;
+use petgraph::graph::NodeIndex;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct NodeData {
     pub x: f32,
     pub y: f32,
     pub z: f32,
     pub color: Color,
-    pub n_connections: u32
+    pub n_connections: u32,
+    pub neighbor_distances: Vec<(NodeIndex, f32)>
 }
 
 impl NodeData {    
@@ -21,17 +23,19 @@ impl NodeData {
 impl From<Vec3> for NodeData {
     fn from(vec: Vec3) -> NodeData {
         let mut rng = ChaCha8Rng::seed_from_u64(1337);
+        
         return NodeData {
             x: vec.x,
             y: vec.y,
             z: vec.z,
             color: Color::RED,
-            n_connections: rng.gen_range(0..7)
+            n_connections: rng.gen_range(0..7),
+            neighbor_distances: Vec::new()
         }
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct EdgeData {
     length: f32
 }
@@ -44,7 +48,7 @@ impl EdgeData {
     // }
 }
 
-#[derive(Resource)]
+#[derive(Debug, Resource)]
 pub struct GlobalState {
     pub graph: Graph<NodeData, EdgeData>
 }
@@ -65,6 +69,7 @@ pub enum BlobType {
 //TODO: variant will be an array/vector/something with possible variants
 //Which are picked randomly or weighted and then randomly picked
 //There will also be some amount of nodes allocated per blob in a range
+#[derive(Debug)]
 pub struct Universe {
     pub n_nodes: usize,
     pub no_no_distance: f64,
