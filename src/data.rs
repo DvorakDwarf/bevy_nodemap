@@ -58,3 +58,17 @@ impl GlobalState {
         };
     }
 }
+
+#[derive(Debug)]
+pub enum BlobType {
+    Disc
+}
+
+//TODO: variant will be an array/vector/something with possible variants
+//Which are picked randomly or weighted and then randomly picked
+//There will also be some amount of nodes allocated per blob in a range
+pub struct Universe {
+    pub n_nodes: usize,
+    pub no_no_distance: f64,
+    pub blob_variant: BlobType
+}

@@ -1,0 +1,31 @@
+fn generate_sphere_surface_blob(universe: &Universe) -> Graph::<NodeData, EdgeData> {
+    let mut graph = Graph::<NodeData, EdgeData>::new();
+    
+    //TODO: Arguments-to-be
+    let mut rng = rand::thread_rng();
+    let radius: f32 = 10.0;
+    let height: f32 = 5.0;
+
+    //Create the first blob origin
+    //TODO: Place the origin in a random location  
+    let mut origin_pos = Vec3::new(0.0, 0.0, 0.0);
+    let mut origin_data = NodeData::from(origin_pos);
+    origin_data.color = Color::BLUE;
+    graph.add_node(origin_data);
+
+    for _ in 0..universe.n_nodes {
+        //Position on a sphere
+        let lat = rng.gen_range(-PI/2.0..PI/2.0);
+        let long = rng.gen_range(-PI..PI);
+
+        let member_pos = Vec3::new(
+            lat.cos() * long.sin() * radius, 
+            lat.sin() * radius, 
+            lat.cos() * long.cos() * radius
+        );
+
+        graph.add_node(NodeData::from(member_pos));
+    }
+
+    return graph;
+}

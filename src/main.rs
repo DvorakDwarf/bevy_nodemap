@@ -6,11 +6,16 @@ use bevy_flycam::prelude::*;
 mod data;
 mod graph_gen;
 
-use data::GlobalState;
+use data::{GlobalState, Universe, BlobType};
 use graph_gen::generate_graph;
 
 fn main() {
-    let graph = generate_graph(200, 3, 1000.0);
+    let universe = Universe {
+        n_nodes: 50,
+        no_no_distance: 3.0,
+        blob_variant: BlobType::Disc
+    };
+    let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);
 
     App::new()
@@ -40,8 +45,7 @@ fn spawn_graph(
     //The state of the graph we want to display
     let graph = &global_state.graph;
 
-    //Font later used for text under nodes
-    let font_handle = asset_server.load("FiraSans-Regular.ttf");
+
 
     for node in graph.node_weights() {
         //How node will look like
@@ -65,21 +69,24 @@ fn spawn_graph(
         };
         commands.spawn(ball);
 
-        //Create text underneath (explore options of crate)
-        node_transform.translation.y += -1.25;
-        commands.spawn(BillboardTextBundle {
-            transform: node_transform.with_scale(Vec3::splat(0.0085)),
-            text: Text::from_section(
-                format!("{} {} {}", node.x, node.y, node.z),
-                TextStyle {
-                    font: font_handle.clone(),
-                    font_size: 60.0,
-                    color: Color::WHITE,
-                },
-            )
-            .with_justify(JustifyText::Center),
-            ..default()
-        });
+        // //Create text underneath (explore options of crate)
+        // //Font used for text under nodes
+        // let font_handle = asset_server.load("FiraSans-Regular.ttf");
+        // 
+        // node_transform.translation.y += -1.25;
+        // commands.spawn(BillboardTextBundle {
+        //     transform: node_transform.with_scale(Vec3::splat(0.0085)),
+        //     text: Text::from_section(
+        //         format!("{} {} {}", node.x, node.y, node.z),
+        //         TextStyle {
+        //             font: font_handle.clone(),
+        //             font_size: 60.0,
+        //             color: Color::WHITE,
+        //         },
+        //     )
+        //     .with_justify(JustifyText::Center),
+        //     ..default()
+        // });
     }
 }
 

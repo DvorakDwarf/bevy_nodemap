@@ -1,35 +1,45 @@
-use petgraph::graph::{Graph, NodeIndex};
-use rand::Rng;
+use std::f32::consts::PI;
+
+use petgraph::graph::Graph;
+use rand::{self, rngs::ThreadRng, Rng};
 use bevy::prelude::*;
 
-use crate::data::{EdgeData, GlobalState, NodeData};
+use crate::data::{BlobType, EdgeData, NodeData, Universe};
 
-pub fn generate_graph(n_nodes: usize, n_neighbors: usize, distance: f32) -> Graph::<NodeData, EdgeData> {
+fn generate_disc_blob(universe: &Universe) -> Graph::<NodeData, EdgeData> {
     let mut graph = Graph::<NodeData, EdgeData>::new();
-
-    let mut current_pos = Vec3::new(0.0, 0.0, 0.0);
-    let mut node_data = NodeData::from(current_pos);
-    node_data.color = Color::BLUE;
-
-    let mut source = graph.add_node(node_data);
-
+    
+    //TODO: Arguments-to-be
     let mut rng = rand::thread_rng();
-    for _ in 0..n_nodes {
-        for i in 0..rng.gen_range(1..=n_neighbors) {
-            let mut neighbor_pos = current_pos.clone();
-            neighbor_pos.x = rng.gen_range(0.0..=distance);
-            neighbor_pos.y = rng.gen_range(0.0..=distance / 3.0);
-            neighbor_pos.z = rng.gen_range(0.0..=distance);
+    let radius: f32 = 30.0;
+    let height: f32 = 10.0;
 
-            let neighbor = graph.add_node(NodeData::from(neighbor_pos));
-            graph.add_edge(source, neighbor, EdgeData::default());
+    //Create the first blob origin
+    //TODO: Place the origin in a random location  
+    let origin_pos = Vec3::new(0.0, 0.0, 0.0);
+    let mut origin_data = NodeData::from(origin_pos);
+    origin_data.color = Color::BLUE;
+    graph.add_node(origin_data);
 
-            if i == n_neighbors-1 {
-                source = neighbor;
-                current_pos = neighbor_pos;
-            }
-        }        
+    for _ in 0..universe.n_nodes {
+
+        let theta: f32 = rng.gen_range(0.0..2.0*PI);
+
+        let x = (rng.gen::<f32>().sqrt() * radius) * theta.cos() + origin_pos.x;
+        let y = rng.gen_range(0.0..height); 
+        let z = (rng.gen::<f32>().sqrt() * radius) * theta.sin() + origin_pos.y;
+
+        let member_pos = Vec3::new(x, y, z);
+
+        graph.add_node(NodeData::from(member_pos));
     }
 
     return graph;
+}
+
+pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
+    match universe.blob_variant {
+        BlobType::Disc => return generate_disc_blob(&universe),
+
+    }
 }
