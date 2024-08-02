@@ -5,15 +5,22 @@ use bevy_flycam::prelude::*;
 
 mod data;
 mod graph_gen;
+mod disc_blob;
+mod node_utils;
 
-use data::{GlobalState, Universe, BlobType};
+use data::{BlobType, GlobalState, Universe, UniverseSize};
 use graph_gen::generate_graph;
 
 fn main() {
     let universe = Universe {
-        n_nodes: 50,
+        n_nodes: 20,
+        n_blobs: 2,
         no_no_distance: 3.0,
-        blob_variant: BlobType::Disc
+        blob_variant: BlobType::Disc,
+        size: UniverseSize {
+            radius: 80.0,
+            height: 10.0
+        }
     };
     let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);
@@ -45,9 +52,9 @@ fn spawn_graph(
     //The state of the graph we want to display
     let graph = &global_state.graph;
 
+    for node_idx in graph.node_indices() {
+        let node = graph.node_weight(node_idx).unwrap();
 
-
-    for node in graph.node_weights() {
         //How node will look like
         let node_material = StandardMaterial {
             base_color: node.color,
@@ -69,24 +76,24 @@ fn spawn_graph(
         };
         commands.spawn(ball);
 
-        // //Create text underneath (explore options of crate)
-        // //Font used for text under nodes
-        // let font_handle = asset_server.load("FiraSans-Regular.ttf");
-        // 
-        // node_transform.translation.y += -1.25;
-        // commands.spawn(BillboardTextBundle {
-        //     transform: node_transform.with_scale(Vec3::splat(0.0085)),
-        //     text: Text::from_section(
-        //         format!("{} {} {}", node.x, node.y, node.z),
-        //         TextStyle {
-        //             font: font_handle.clone(),
-        //             font_size: 60.0,
-        //             color: Color::WHITE,
-        //         },
-        //     )
-        //     .with_justify(JustifyText::Center),
-        //     ..default()
-        // });
+        //Create text underneath (explore options of crate)
+        //Font used for text under nodes
+        let font_handle = asset_server.load("FiraSans-Regular.ttf");
+        
+        node_transform.translation.y += -1.25;
+        commands.spawn(BillboardTextBundle {
+            transform: node_transform.with_scale(Vec3::splat(0.0085)),
+            text: Text::from_section(
+                format!("{}", node_idx.index()),
+                TextStyle {
+                    font: font_handle.clone(),
+                    font_size: 60.0,
+                    color: Color::WHITE,
+                },
+            )
+            .with_justify(JustifyText::Center),
+            ..default()
+        });
     }
 }
 
@@ -107,7 +114,7 @@ fn draw_lines(mut gizmos: Gizmos, global_state: Res<GlobalState>) {
                     line,
                     position,
                     Quat::default(),
-                    Color::RED
+                    Color::WHITE
                 );
             },
             None => println!("Unexpected None edge"),

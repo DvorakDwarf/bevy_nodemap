@@ -1,17 +1,26 @@
+use std::collections::HashMap;
+
 use bevy::prelude::*;
 use petgraph::graph::Graph;
 use petgraph::graph::NodeIndex;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone, PartialEq)]
+pub enum NodeType {
+    Center, Member
+}
+
+#[derive(Debug, Clone)]
 pub struct NodeData {
     pub x: f32,
     pub y: f32,
     pub z: f32,
     pub color: Color,
-    pub n_connections: u32,
-    pub neighbor_distances: Vec<(NodeIndex, f32)>
+    pub role: NodeType,
+    pub n_connections: usize,
+    pub neighbor_distances: HashMap<NodeIndex, f32>,
+    pub outer_distances: HashMap<NodeIndex, f32>
 }
 
 impl NodeData {    
@@ -20,17 +29,35 @@ impl NodeData {
     }
 }
 
+//Here lies my attempt at using a normal distribution to control
+//the number of connections. Do later
+fn gen_n_connections(min: usize, max: usize) -> usize {
+    let mut rng = ChaCha8Rng::seed_from_u64(1337);
+
+    //Normal in spirit
+    let normal_sample = thread_rng().gen_range(min..max);
+    dbg!(normal_sample);
+    return normal_sample;
+}
+
+//TODO: Randomize
 impl From<Vec3> for NodeData {
     fn from(vec: Vec3) -> NodeData {
-        let mut rng = ChaCha8Rng::seed_from_u64(1337);
-        
+        //Average: 4 Minimum: 2
+        // let n_connections = gen_n_connections(2, 6);
+        // let n_connections = thread_rng().gen_range(4..8);
+
+        // dbg!(n_connections);
+
         return NodeData {
             x: vec.x,
             y: vec.y,
             z: vec.z,
             color: Color::RED,
-            n_connections: rng.gen_range(0..7),
-            neighbor_distances: Vec::new()
+            role: NodeType::Member,
+            n_connections: 999,
+            neighbor_distances: HashMap::new(),
+            outer_distances: HashMap::new()
         }
     }
 }
@@ -41,11 +68,11 @@ pub struct EdgeData {
 }
 
 impl EdgeData {
-    // pub fn new(length: f32) -> EdgeData {
-    //     return EdgeData {
-    //         length
-    //     };
-    // }
+    pub fn new(length: f32) -> EdgeData {
+        return EdgeData {
+            length
+        };
+    }
 }
 
 #[derive(Debug, Resource)]
@@ -72,6 +99,14 @@ pub enum BlobType {
 #[derive(Debug)]
 pub struct Universe {
     pub n_nodes: usize,
+    pub n_blobs: usize,
     pub no_no_distance: f64,
-    pub blob_variant: BlobType
+    pub blob_variant: BlobType,
+    pub size: UniverseSize
+}
+
+#[derive(Debug)]
+pub struct UniverseSize {
+    pub radius: f32,
+    pub height: f32
 }
