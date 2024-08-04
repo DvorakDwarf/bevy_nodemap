@@ -1,3 +1,4 @@
+use petgraph::algo;
 use petgraph::graph::{Graph, NodeIndex};
 use rand;
 use rand::prelude::*;
@@ -5,6 +6,7 @@ use rand_chacha::ChaCha8Rng;
 
 use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
 use crate::disc_blob;
+use crate::node_utils::{get_sorted_distances, is_blob_connected};
 
 fn merge_graphs(
     graph1: &mut Graph::<NodeData, EdgeData>, 
@@ -84,14 +86,24 @@ fn connect_blob() {
 fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
     -> Graph::<NodeData, EdgeData> {
 
+    //TODO: Arguments-to-be
+    let n_candidates = 2;
+
     //Make sure each one is reached at least once in a full run
-    let blob_order = get_centers(&graph);
+    //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
+    let mut blob_order: Vec<(NodeIndex, NodeData)> = get_centers(&graph)
+        .iter()
+        .map(|x| (x.0, x.1.clone()))
+        .collect();
     blob_order.shuffle(rng);
+
+    let centre_indices: Vec<NodeIndex> = blob_order.iter().map(|x| x.0).collect();
 
     //TODO: TOO MANY EDGES
     //CORRECTION: IT SEEMS THAT WAY BECAUSE LINES GO THROUGH NODES
     //IT WORKS FINE WITH LOW n_candidates BUT I SHOULD FIX THIS
     for (start_idx, centre_node) in blob_order {
+        println!("Connecting blob {:?}", start_idx);
         // let n_edges = graph.edges(start_idx).count();
         // dbg!(&n_edges);
         // if n_edges > start_node.n_connections {
@@ -102,35 +114,71 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
         //TODO: CONTINUE FROM HERE, IDENTIFY OTHER CENTRES EITHER IN-LOOP 
         //OR FILTER OUT BEFOREHAND
 
-        //Same idea as with node_order
+        //Get vec from outer distances, filter down to other centres
+        //Use existing nodes in blob_order
+
+        //Regular candidate process but only with 3 candidates
+        //See if path exists between centres, continue if it does
+        //Otherwise, use function connect_blob
+        //First try to just connect centres directly to see how it looks
+
+        //Connect blob creates 2 vecs of (NodeIndex, outer_distance)
+        //from each blob
+        //Filters outer distance to only nodes in opposite side
+        //Find X pairs of nodes in each blob with minimal distances
+        //Just look at outer distances of one blob and find min distances
+        //Connect
+
+        //???
+        //PROFIT
+
+        //Same idea as with blob_order
         //Make sure it's sorted to get the closest nodes
-        let candidates = &start_node.neighbor_distances;
-        let candidates = &mut get_sorted_distances(candidates)[0..n_candidates];
+        //Remove any non-center nodes
+        let candidates = &centre_node.outer_distances;
+        let candidates = get_sorted_distances(&candidates);
+        let mut candidates: Vec<&(NodeIndex, f32)> = candidates
+            .iter()
+            .filter(|x| centre_indices.contains(&x.0))
+            .collect();
+        let candidates = &mut candidates[0..n_candidates];
         candidates.shuffle(rng);
 
         for (candidate_idx, candidate_distance) in candidates {
-            //Maybe it should mark the fact it tried one candidate already
-            let candidate_node = graph.node_weight(*candidate_idx).unwrap();
-            let n_edges = graph.edges(*candidate_idx).count();
-            if n_edges > candidate_node.n_connections {
-                // dbg!("Triggered 2");
+            println!("Considering candidate {:?}", candidate_idx);
+
+            //Holy shit, this just worked first try, wtf
+            let path = algo::has_path_connecting(
+                &graph,
+                start_idx,
+                *candidate_idx,
+                None
+            );
+            if path == true {
                 continue;
             }
+
+            // let candidate_node = graph.node_weight(*candidate_idx).unwrap();
+            // let n_edges = graph.edges(*candidate_idx).count();
+            // if n_edges > candidate_node.n_connections {
+            //     // dbg!("Triggered 2");
+            //     continue;
+            // }
 
             graph.update_edge(
                 start_idx, 
                 *candidate_idx, 
                 EdgeData::new(*candidate_distance)
             );
-            println!("Updated edge between {:?} and {:?}", start_idx, candidate_idx);
+            println!("Updated edge between blob centers {:?} and {:?}", start_idx, candidate_idx);
 
             //It stops looking at candidates after one is update to
             //keep it roughly uniformly distributed
             break;
         }
 
+        //Might need to limit this to just centres to speed things up
         if is_blob_connected(&graph) == true {
-            stop = true;
             break;
         }
     }
@@ -154,7 +202,7 @@ pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
 
     //Connect the blobs
     let graph = calculate_outer_distances(graph);
-    let graph = connect_blobs(graph);
+    let graph = connect_blobs(graph, &mut rng);
 
     //TODO:
     //Put it into format:
@@ -176,6 +224,6 @@ pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
     //     }
     // }
 
-    dbg!(&graph);
+    // dbg!(&graph);
     return graph;
 }

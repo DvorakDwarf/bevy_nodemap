@@ -14,7 +14,7 @@ use graph_gen::generate_graph;
 fn main() {
     let universe = Universe {
         n_nodes: 20,
-        n_blobs: 2,
+        n_blobs: 3,
         no_no_distance: 3.0,
         blob_variant: BlobType::Disc,
         size: UniverseSize {
@@ -100,21 +100,24 @@ fn spawn_graph(
 fn draw_lines(mut gizmos: Gizmos, global_state: Res<GlobalState>) {
     let graph = &global_state.graph;
 
-    for edge in graph.edge_indices() {
-        let endpoints = graph.edge_endpoints(edge);
+    for edge_idx in graph.edge_indices() {
+        let endpoints = graph.edge_endpoints(edge_idx);
         
         match endpoints {
             Some((n1, n2)) => {
+                let edge = graph.edge_weight(edge_idx).unwrap();
                 let n1 = graph.node_weight(n1).unwrap();
                 let n2 = graph.node_weight(n2).unwrap();
 
                 let (line, position) = Segment3d::from_points(n1.get_vec(), n2.get_vec());
                 
+                let edge_color = edge.color;
+
                 gizmos.primitive_3d(
                     line,
                     position,
                     Quat::default(),
-                    Color::WHITE
+                    edge_color
                 );
             },
             None => println!("Unexpected None edge"),
