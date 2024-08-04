@@ -1,3 +1,4 @@
+use bevy::prelude::Color;
 use petgraph::algo;
 use petgraph::graph::{Graph, NodeIndex};
 use rand;
@@ -35,6 +36,16 @@ fn merge_graphs(
     }
 } 
 
+fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
+    let distance = (
+        (end_node.x - start_node.x).powf(2.0) + 
+        (end_node.y - start_node.y).powf(2.0) +
+        (end_node.z - start_node.z).powf(2.0)
+    ).sqrt();
+
+    return distance;
+}
+
 fn calculate_outer_distances(mut graph: Graph::<NodeData, EdgeData>) 
     -> Graph::<NodeData, EdgeData> {
 
@@ -53,11 +64,7 @@ fn calculate_outer_distances(mut graph: Graph::<NodeData, EdgeData>)
 
             let end_node = immutable_graph.node_weight(end_idx).unwrap();
 
-            let distance = (
-                (end_node.x - start_node.x).powf(2.0) + 
-                (end_node.y - start_node.y).powf(2.0) +
-                (end_node.z - start_node.z).powf(2.0)
-            ).sqrt();
+            let distance = calculate_3d_distance(start_node, end_node);
             
             start_node.outer_distances.insert(end_idx, distance);
         }
@@ -79,8 +86,61 @@ fn get_centers(graph: &Graph::<NodeData, EdgeData>) -> Vec<(NodeIndex, &NodeData
     return centres;
 }
 
-fn connect_blob() {
+fn connect_blob(
+    mut graph: Graph::<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng,
+    idx_1: NodeIndex, 
+    idx_2: NodeIndex) -> Graph<NodeData, EdgeData> {
+    // let candidate_node = graph.node_weight(*candidate_idx).unwrap();
+    // let n_edges = graph.edges(*candidate_idx).count();
+    // if n_edges > candidate_node.n_connections {
+    //     // dbg!("Triggered 2");
+    //     continue;
+    // }
 
+    //TODO: Arguments-to-be
+    let n_interblob_edges = rng.gen_range(1..=4);
+
+    //Kinda double work but idc, cleaner arguments
+    let center_1 = graph.node_weight(idx_1).unwrap();
+    let center_2 = graph.node_weight(idx_2).unwrap();
+
+    //All nodes belonging to a blob
+    let members_1: Vec<NodeIndex> = center_1.neighbor_distances
+        .iter()
+        .map(|x| *x.0)
+        .collect();
+
+    let members_2: Vec<NodeIndex> = center_2.neighbor_distances
+        .iter()
+        .map(|x| *x.0)
+        .collect();
+
+    let mut distances: Vec<(NodeIndex, NodeIndex, f32)> = Vec::new();
+    for start_idx in members_1 {
+        let start_node = graph.node_weight(start_idx).unwrap();
+
+        //idk why clone is required here and why members_1 didn't complain
+        for end_idx in members_2.clone() {
+            let end_node = graph.node_weight(end_idx).unwrap();
+
+            let distance = calculate_3d_distance(start_node, end_node);
+            distances.push((start_idx, end_idx, distance));
+        }
+    }
+    distances.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
+    let distances = &mut distances[0..n_interblob_edges];
+    distances.shuffle(rng);
+
+    for connection in distances {
+        graph.update_edge(
+            connection.0, 
+            connection.1, 
+            EdgeData::with_color(connection.2, Color::TOMATO)
+        );
+    }
+
+    return graph; 
 }
 
 fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
@@ -114,13 +174,13 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
         //TODO: CONTINUE FROM HERE, IDENTIFY OTHER CENTRES EITHER IN-LOOP 
         //OR FILTER OUT BEFOREHAND
 
-        //Get vec from outer distances, filter down to other centres
-        //Use existing nodes in blob_order
+        //Get vec from outer distances, filter down to other centres XXX
+        //Use existing nodes in blob_order XXX
 
-        //Regular candidate process but only with 3 candidates
-        //See if path exists between centres, continue if it does
-        //Otherwise, use function connect_blob
-        //First try to just connect centres directly to see how it looks
+        //Regular candidate process but only with 3 candidates XXX
+        //See if path exists between centres, continue if it does XXX
+        //Otherwise, use function connect_blob XXX
+        //First try to just connect centres directly to see how it looks XXX
 
         //Connect blob creates 2 vecs of (NodeIndex, outer_distance)
         //from each blob
@@ -144,7 +204,7 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
         let candidates = &mut candidates[0..n_candidates];
         candidates.shuffle(rng);
 
-        for (candidate_idx, candidate_distance) in candidates {
+        for (candidate_idx, _) in candidates {
             println!("Considering candidate {:?}", candidate_idx);
 
             //Holy shit, this just worked first try, wtf
@@ -158,21 +218,11 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
                 continue;
             }
 
-            // let candidate_node = graph.node_weight(*candidate_idx).unwrap();
-            // let n_edges = graph.edges(*candidate_idx).count();
-            // if n_edges > candidate_node.n_connections {
-            //     // dbg!("Triggered 2");
-            //     continue;
-            // }
+            graph = connect_blob(graph, rng, start_idx, *candidate_idx);
 
-            graph.update_edge(
-                start_idx, 
-                *candidate_idx, 
-                EdgeData::new(*candidate_distance)
-            );
-            println!("Updated edge between blob centers {:?} and {:?}", start_idx, candidate_idx);
+            println!("Updated edge between blobs {:?} and {:?}", start_idx, candidate_idx);
 
-            //It stops looking at candidates after one is update to
+            //It stops looking at candidates after one is updated to
             //keep it roughly uniformly distributed
             break;
         }

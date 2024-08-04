@@ -81,6 +81,13 @@ impl EdgeData {
             color
         };
     }
+
+    pub fn with_color(length: f32, color: Color) -> EdgeData {
+        return EdgeData {
+            length,
+            color
+        };
+    }
 }
 
 #[derive(Debug, Resource)]
