@@ -29,16 +29,16 @@ impl NodeData {
     }
 }
 
-//Here lies my attempt at using a normal distribution to control
-//the number of connections. Do later
-fn gen_n_connections(min: usize, max: usize) -> usize {
-    let mut rng = ChaCha8Rng::seed_from_u64(1337);
+// //Here lies my attempt at using a normal distribution to control
+// //the number of connections. Do later
+// fn gen_n_connections(min: usize, max: usize) -> usize {
+//     let mut rng = ChaCha8Rng::seed_from_u64(1337);
 
-    //Normal in spirit
-    let normal_sample = thread_rng().gen_range(min..max);
-    dbg!(normal_sample);
-    return normal_sample;
-}
+//     //Normal in spirit
+//     let normal_sample = thread_rng().gen_range(min..max);
+//     dbg!(normal_sample);
+//     return normal_sample;
+// }
 
 //TODO: Randomize
 impl From<Vec3> for NodeData {

@@ -13,13 +13,13 @@ use graph_gen::generate_graph;
 
 fn main() {
     let universe = Universe {
-        n_nodes: 20,
-        n_blobs: 10,
+        n_nodes: 16,
+        n_blobs: 5,
         no_no_distance: 3.0,
         blob_variant: BlobType::Disc,
         size: UniverseSize {
-            radius: 80.0,
-            height: 10.0
+            radius: 50.0,
+            height: 20.0
         }
     };
     let graph = generate_graph(universe);

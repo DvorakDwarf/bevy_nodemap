@@ -143,21 +143,14 @@ fn connect_blob(
     return graph; 
 }
 
-fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
-    -> Graph::<NodeData, EdgeData> {
-
+fn pick_blob_couples(
+    mut graph: Graph::<NodeData, EdgeData>,
+    blob_order: &Vec<(NodeIndex, NodeData)>,
+    centre_indices: &Vec<NodeIndex>,
+    rng: &mut ChaCha8Rng
+) -> (Graph<NodeData, EdgeData>, bool) {
     //TODO: Arguments-to-be
-    let n_candidates = 2;
-
-    //Make sure each one is reached at least once in a full run
-    //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
-    let mut blob_order: Vec<(NodeIndex, NodeData)> = get_centers(&graph)
-        .iter()
-        .map(|x| (x.0, x.1.clone()))
-        .collect();
-    blob_order.shuffle(rng);
-
-    let centre_indices: Vec<NodeIndex> = blob_order.iter().map(|x| x.0).collect();
+    let n_candidates = 3;
 
     //TODO: TOO MANY EDGES
     //CORRECTION: IT SEEMS THAT WAY BECAUSE LINES GO THROUGH NODES
@@ -182,12 +175,12 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
         //Otherwise, use function connect_blob XXX
         //First try to just connect centres directly to see how it looks XXX
 
-        //Connect blob creates 2 vecs of (NodeIndex, outer_distance)
-        //from each blob
-        //Filters outer distance to only nodes in opposite side
-        //Find X pairs of nodes in each blob with minimal distances
-        //Just look at outer distances of one blob and find min distances
-        //Connect
+        //Connect blob creates 2 vecs of (NodeIndex, outer_distance) YYY
+        //from each blob YYY
+        //Filters outer distance to only nodes in opposite side XXX
+        //Find X pairs of nodes in each blob with minimal distances XXX
+        //Just look at outer distances of one blob and find min distances XXX
+        //Connect XXX
 
         //???
         //PROFIT
@@ -210,7 +203,7 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
             //Holy shit, this just worked first try, wtf
             let path = algo::has_path_connecting(
                 &graph,
-                start_idx,
+                *start_idx,
                 *candidate_idx,
                 None
             );
@@ -218,7 +211,7 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
                 continue;
             }
 
-            graph = connect_blob(graph, rng, start_idx, *candidate_idx);
+            graph = connect_blob(graph, rng, *start_idx, *candidate_idx);
 
             println!("Updated edge between blobs {:?} and {:?}", start_idx, candidate_idx);
 
@@ -229,6 +222,30 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
 
         //Might need to limit this to just centres to speed things up
         if is_blob_connected(&graph) == true {
+            return (graph, true); 
+        }
+    }
+
+    return (graph, false);
+}
+
+fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
+    -> Graph::<NodeData, EdgeData> {
+
+    //Make sure each one is reached at least once in a full run
+    //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
+    let mut blob_order: Vec<(NodeIndex, NodeData)> = get_centers(&graph)
+        .iter()
+        .map(|x| (x.0, x.1.clone()))
+        .collect();
+    blob_order.shuffle(rng);
+
+    let centre_indices: Vec<NodeIndex> = blob_order.iter().map(|x| x.0).collect();
+
+    loop {
+        let (updated_graph, stop) = pick_blob_couples(graph, &blob_order, &centre_indices, rng);
+        graph = updated_graph;
+        if stop == true {
             break;
         }
     }

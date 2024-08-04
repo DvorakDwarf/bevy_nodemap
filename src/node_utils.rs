@@ -82,7 +82,7 @@ pub fn get_sorted_distances(map: &HashMap<NodeIndex, f32>) -> Vec<(NodeIndex, f3
 pub fn connect_members(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
     -> Graph<NodeData, EdgeData> {
     //TODO: Arguments-to-be
-    let n_candidates = 8;
+    let n_candidates = 7;
 
     //Does repeat work. In fact, a lot of this code does
     let mut stop = false;
