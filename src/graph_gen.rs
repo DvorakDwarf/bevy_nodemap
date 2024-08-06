@@ -1,3 +1,4 @@
+use bevy::math::Vec3;
 use bevy::prelude::Color;
 use petgraph::algo;
 use petgraph::graph::{Graph, NodeIndex};
@@ -256,12 +257,23 @@ fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
 pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
     let mut graph = Graph::<NodeData, EdgeData>::new();
+    //Make sure blobs don't spawn too close
+    //TODO: For merging blobs, make it Vec<(BlobType, Vec3)>
+    let mut center_positions: Vec<Vec3> = Vec::new();
 
     //Place blobs
     for _ in 0..universe.n_blobs {
         match universe.blob_variant {
             BlobType::Disc => { 
-                let new_blob = disc_blob::generate_disc_blob(&universe, &mut rng);
+                let new_blob = disc_blob::generate_disc_blob(
+                    &universe, &center_positions, &mut rng
+                );
+                let new_center = new_blob
+                    .node_weights()
+                    .find(|x| x.role == NodeType::Center)
+                    .unwrap();
+                let new_center_pos = Vec3::new(new_center.x, new_center.y, new_center.z);
+                center_positions.push(new_center_pos);
                 merge_graphs(&mut graph, new_blob);
             },
         }

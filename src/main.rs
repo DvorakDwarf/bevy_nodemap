@@ -14,7 +14,7 @@ use graph_gen::generate_graph;
 fn main() {
     let universe = Universe {
         n_nodes: 16,
-        n_blobs: 5,
+        n_blobs: 4,
         no_no_distance: 3.0,
         blob_variant: BlobType::Disc,
         size: UniverseSize {

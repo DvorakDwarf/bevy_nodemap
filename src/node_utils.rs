@@ -141,6 +141,34 @@ pub fn connect_members(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8
     return graph;
 }
 
+fn get_positons(graph: &Graph::<NodeData, EdgeData>) -> Vec<Vec3> {
+    //Sort based on distance, ascending
+    let positions_list: Vec<Vec3> = graph
+        .node_weights()
+        .map(|x| Vec3::new(x.x, x.y, x.z))
+        .collect();
+
+    return positions_list;
+}
+
+
+pub fn is_member_clipping(
+    graph: &Graph::<NodeData, EdgeData>, 
+    member_pos: &Vec3) -> bool 
+{
+    //TODO: Arguments-to-be
+    let distance_tolerance = 1.0;
+
+    let positions = get_positons(graph);
+    for position in positions {
+        if member_pos.distance(position) < distance_tolerance {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 pub fn rand_position(
     radius: f32, 
     height: f32, 
