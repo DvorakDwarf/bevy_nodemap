@@ -6,7 +6,7 @@ use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::data::{EdgeData, NodeData, NodeType};
+use crate::data::{EdgeData, NodeData, NodeType, Universe};
 use crate::node_utils::{get_sorted_distances, is_blob_connected};
 
 fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
@@ -58,12 +58,10 @@ fn get_centers(graph: &Graph::<NodeData, EdgeData>) -> Vec<(NodeIndex, &NodeData
 fn connect_blob(
     mut graph: Graph::<NodeData, EdgeData>, 
     rng: &mut ChaCha8Rng,
+    n_interblob_edges: usize,
     idx_1: NodeIndex, 
     idx_2: NodeIndex) -> Graph<NodeData, EdgeData> 
 {
-    //TODO: Arguments-to-be
-    let n_interblob_edges = rng.gen_range(1..=4);
-
     //Kinda double work but idc, cleaner arguments
     let center_1 = graph.node_weight(idx_1).unwrap();
     let center_2 = graph.node_weight(idx_2).unwrap();
@@ -110,11 +108,9 @@ fn pick_blob_couples(
     mut graph: Graph::<NodeData, EdgeData>,
     blob_order: &Vec<(NodeIndex, NodeData)>,
     centre_indices: &Vec<NodeIndex>,
-    rng: &mut ChaCha8Rng
-) -> (Graph<NodeData, EdgeData>, bool) {
-    //TODO: Arguments-to-be
-    let n_candidates = 3;
-
+    rng: &mut ChaCha8Rng,
+    n_blob_candidates: usize) -> (Graph<NodeData, EdgeData>, bool) 
+{
     for (start_idx, centre_node) in blob_order {
         println!("Connecting blob {:?}", start_idx);
 
@@ -127,7 +123,7 @@ fn pick_blob_couples(
             .iter()
             .filter(|x| centre_indices.contains(&x.0))
             .collect();
-        let candidates = &mut candidates[0..n_candidates];
+        let candidates = &mut candidates[0..n_blob_candidates];
         candidates.shuffle(rng);
 
         for (candidate_idx, _) in candidates {
@@ -144,7 +140,8 @@ fn pick_blob_couples(
                 continue;
             }
 
-            graph = connect_blob(graph, rng, *start_idx, *candidate_idx);
+            let n_interblob_edges = rng.gen_range(1..=4);
+            graph = connect_blob(graph, rng, n_interblob_edges, *start_idx, *candidate_idx);
 
             println!("Updated edge between blobs {:?} and {:?}", start_idx, candidate_idx);
 
@@ -162,9 +159,11 @@ fn pick_blob_couples(
     return (graph, false);
 }
 
-pub fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
-    -> Graph::<NodeData, EdgeData> {
-
+pub fn connect_blobs(
+    mut graph: Graph::<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng,
+    universe: &Universe) -> Graph::<NodeData, EdgeData> 
+{
     //Make sure each one is reached at least once in a full run
     //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
     let mut blob_order: Vec<(NodeIndex, NodeData)> = get_centers(&graph)
@@ -176,7 +175,13 @@ pub fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rn
     let centre_indices: Vec<NodeIndex> = blob_order.iter().map(|x| x.0).collect();
 
     loop {
-        let (updated_graph, stop) = pick_blob_couples(graph, &blob_order, &centre_indices, rng);
+        let (updated_graph, stop) = pick_blob_couples(
+            graph, 
+            &blob_order, 
+            &centre_indices, 
+            rng,
+            universe.n_blob_candidates
+        );
         graph = updated_graph;
         if stop == true {
             break;
@@ -188,13 +193,11 @@ pub fn connect_blobs(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rn
 
 pub fn is_blob_clipping(
     center_postions: &Vec<Vec3>, 
-    origin_pos: Vec3) -> bool 
+    origin_pos: Vec3,
+    blob_distance_tolerence: f32) -> bool 
 {
-    //TODO: Arguments-to-be
-    let distance_tolerance = 30.0;
-
     for position in center_postions {
-        if origin_pos.distance(*position) < distance_tolerance {
+        if origin_pos.distance(*position) < blob_distance_tolerence {
             return true;
         }
     }

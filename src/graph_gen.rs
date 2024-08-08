@@ -62,7 +62,7 @@ pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
 
     //Connect the blobs
     let graph = calculate_outer_distances(graph);
-    let graph = connect_blobs(graph, &mut rng);
+    let graph = connect_blobs(graph, &mut rng, &universe);
 
     // dbg!(&graph);
     return graph;

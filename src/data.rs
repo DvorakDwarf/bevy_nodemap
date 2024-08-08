@@ -115,9 +115,12 @@ pub enum BlobType {
 pub struct Universe {
     pub n_nodes: usize,
     pub n_blobs: usize,
-    pub no_no_distance: f64,
     pub blob_variant: BlobType,
-    pub size: UniverseSize
+    pub size: UniverseSize,
+    pub no_no_distance: f32,
+    pub blob_distance_tolerance: f32,
+    pub n_blob_candidates: usize,
+    pub n_member_candidates: usize,
 }
 
 #[derive(Debug)]

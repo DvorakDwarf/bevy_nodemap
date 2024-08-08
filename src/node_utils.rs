@@ -79,11 +79,11 @@ pub fn get_sorted_distances(map: &HashMap<NodeIndex, f32>) -> Vec<(NodeIndex, f3
     return distances_list;
 }
 
-pub fn connect_members(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng)
-    -> Graph<NodeData, EdgeData> {
-    //TODO: Arguments-to-be
-    let n_candidates = 7;
-
+pub fn connect_members(
+    mut graph: Graph::<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng,
+    n_member_candidates: usize) -> Graph<NodeData, EdgeData> 
+{
     //Does repeat work. In fact, a lot of this code does
     let mut stop = false;
     while stop == false {
@@ -107,7 +107,7 @@ pub fn connect_members(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8
             //Same idea as with node_order
             //Make sure it's sorted to get the closest nodes
             let candidates = &start_node.neighbor_distances;
-            let candidates = &mut get_sorted_distances(candidates)[0..n_candidates];
+            let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
             candidates.shuffle(rng);
 
             for (candidate_idx, candidate_distance) in candidates {
@@ -154,11 +154,9 @@ fn get_positons(graph: &Graph::<NodeData, EdgeData>) -> Vec<Vec3> {
 
 pub fn is_member_clipping(
     graph: &Graph::<NodeData, EdgeData>, 
-    member_pos: &Vec3) -> bool 
+    member_pos: &Vec3,
+    distance_tolerance: f32) -> bool 
 {
-    //TODO: Arguments-to-be
-    let distance_tolerance = 1.0;
-
     let positions = get_positons(graph);
     for position in positions {
         if member_pos.distance(position) < distance_tolerance {

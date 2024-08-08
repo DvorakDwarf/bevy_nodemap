@@ -16,7 +16,7 @@ pub fn generate_disc_blob(
 {
     let mut graph = Graph::<NodeData, EdgeData>::new();
     
-    //TODO: Arguments-to-be
+    //Maybe these should be arguments ?
     let radius: f32 = 20.0;
     let height: f32 = 10.0;
 
@@ -30,7 +30,12 @@ pub fn generate_disc_blob(
             &mut rng
         );
 
-        if is_blob_clipping(center_postions, origin_pos) == false {
+        let blob_clipping = is_blob_clipping(
+            center_postions, 
+            origin_pos, 
+            universe.blob_distance_tolerance
+        );
+        if blob_clipping == false {
             break;
         }
     }
@@ -44,7 +49,7 @@ pub fn generate_disc_blob(
         //TODO: Check that no other indices are close, then try again
         loop {
             let member_pos = node_utils::rand_position(radius, height, origin_pos, rng);
-            if is_member_clipping(&graph, &member_pos) == false {
+            if is_member_clipping(&graph, &member_pos, universe.no_no_distance) == false {
                 graph.add_node(NodeData::from(member_pos));
                 break;
             }   
@@ -53,7 +58,7 @@ pub fn generate_disc_blob(
     }
 
     graph = node_utils::calculate_blob_proximity(graph, rng);
-    graph = node_utils::connect_members(graph, rng);
+    graph = node_utils::connect_members(graph, rng, universe.n_member_candidates);
 
     return graph;
 }
