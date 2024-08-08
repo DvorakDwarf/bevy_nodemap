@@ -7,6 +7,7 @@ mod data;
 mod graph_gen;
 mod disc_blob;
 mod node_utils;
+mod blob_utils;
 
 use data::{BlobType, GlobalState, Universe, UniverseSize};
 use graph_gen::generate_graph;
