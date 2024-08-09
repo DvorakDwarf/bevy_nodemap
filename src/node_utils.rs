@@ -137,8 +137,11 @@ fn add_blob_fluff(
                     // dbg!("Triggered 2");
                     continue;
                 }
+                if graph.find_edge(start_idx, candidate_idx) != None {
+                    continue;
+                }
 
-                graph.update_edge(
+                graph.add_edge(
                     start_idx, 
                     candidate_idx, 
                     EdgeData::with_color(candidate_distance, Color::GRAY)
