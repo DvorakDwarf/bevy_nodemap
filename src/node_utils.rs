@@ -155,6 +155,10 @@ fn add_blob_fluff(
 
             fluff = average_connections(&graph);
             println!("New fluff amount: {}", fluff);
+
+            if fluff >= fluff_requirement {
+                break;
+            }
         }
     }
 
