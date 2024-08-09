@@ -45,10 +45,7 @@ impl NodeData {
 //TODO: Randomize
 impl From<Vec3> for NodeData {
     fn from(vec: Vec3) -> NodeData {
-        //Average: 4 Minimum: 2
-        // let n_connections = gen_n_connections(2, 6);
-        // let n_connections = thread_rng().gen_range(4..8);
-
+        // let n_connections = thread_rng().gen_range(2..6);
         // dbg!(n_connections);
 
         return NodeData {
@@ -124,6 +121,8 @@ pub struct Universe {
     pub n_blob_candidates: usize,
     pub n_member_candidates: usize,
     pub fluff_requirement: f32,
+    pub min_connections: usize, //TODO: not actually used
+    pub max_connections: usize //TODO: not actually use
 }
 
 #[derive(Debug)]

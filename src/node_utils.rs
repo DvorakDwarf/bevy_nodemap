@@ -89,6 +89,7 @@ fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
     let total_connections: Vec<usize> = graph
         .node_indices()
         .map(|idx| graph.edges(idx).count()).collect();
+    // dbg!(&total_connections);
 
     let average = total_connections.iter().sum::<usize>() as f32 / n_nodes;
 
