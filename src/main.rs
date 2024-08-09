@@ -14,8 +14,8 @@ use graph_gen::generate_graph;
 
 fn main() { 
     let universe = Universe {
-        n_nodes: 16,
-        n_blobs: 4,
+        n_nodes: 20,
+        n_blobs: 2,
         blob_variant: BlobType::Disc,
         size: UniverseSize {
             radius: 50.0,
@@ -23,8 +23,8 @@ fn main() {
         },
         no_no_distance: 1.0,
         blob_distance_tolerance: 30.0,
-        n_blob_candidates: 3,
-        n_member_candidates: 7,  
+        n_blob_candidates: 1,
+        n_member_candidates: 4,  
     };
     let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);

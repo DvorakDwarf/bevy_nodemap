@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use petgraph::graph::Graph;
 use petgraph::graph::NodeIndex;
+use petgraph::graph::UnGraph;
+use petgraph::Undirected;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
@@ -92,11 +94,11 @@ impl EdgeData {
 
 #[derive(Debug, Resource)]
 pub struct GlobalState {
-    pub graph: Graph<NodeData, EdgeData>
+    pub graph: UnGraph<NodeData, EdgeData>
 }
 
 impl GlobalState {
-    pub fn new(graph: Graph<NodeData, EdgeData>) -> GlobalState {
+    pub fn new(graph: UnGraph<NodeData, EdgeData>) -> GlobalState {
         return GlobalState {
             graph
         };

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::f32::consts::PI;
-use petgraph::algo;
-use petgraph::graph::{Graph, NodeIndex};
+use petgraph::{algo, Undirected};
+use petgraph::graph::{Graph, NodeIndex, UnGraph};
 use rand::{self, Rng};
 use rand::seq::SliceRandom;
 use rand_chacha::ChaCha8Rng;
@@ -9,7 +9,9 @@ use bevy::prelude::*;
 
 use crate::data::{EdgeData, NodeData};
 
-pub fn is_blob_connected(graph: &Graph::<NodeData, EdgeData>) -> bool {
+pub fn is_blob_connected(
+    graph: &UnGraph<NodeData, EdgeData>) -> bool 
+{
     let mut counter = 0;
     let mut connected = true;
     for start_idx in graph.node_indices() {
@@ -34,13 +36,15 @@ pub fn is_blob_connected(graph: &Graph::<NodeData, EdgeData>) -> bool {
         }
     }
 
-    println!("{counter} paths found");
+    // println!("{counter} paths found");
     return connected;
 }
 
 
-pub fn calculate_blob_proximity(mut graph: Graph::<NodeData, EdgeData>, rng: &mut ChaCha8Rng) 
-    -> Graph<NodeData, EdgeData> {
+pub fn calculate_blob_proximity(
+    mut graph: UnGraph<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng) -> UnGraph<NodeData, EdgeData> 
+{
     //Borrow checked fighting
     let immutable_graph = graph.clone();
 
@@ -79,10 +83,23 @@ pub fn get_sorted_distances(map: &HashMap<NodeIndex, f32>) -> Vec<(NodeIndex, f3
     return distances_list;
 }
 
+fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
+    let n_nodes = graph.node_count() as f32;
+
+    let total_connections: Vec<usize> = graph
+        .node_indices()
+        .map(|idx| graph.edges(idx).count()).collect();
+
+    dbg!(&total_connections);
+    let average = total_connections.iter().sum::<usize>() as f32 / n_nodes;
+
+    return average;
+}
+
 pub fn connect_members(
-    mut graph: Graph::<NodeData, EdgeData>, 
+    mut graph: UnGraph<NodeData, EdgeData>, 
     rng: &mut ChaCha8Rng,
-    n_member_candidates: usize) -> Graph<NodeData, EdgeData> 
+    n_member_candidates: usize) -> UnGraph<NodeData, EdgeData> 
 {
     //Does repeat work. In fact, a lot of this code does
     let mut stop = false;
@@ -138,10 +155,84 @@ pub fn connect_members(
         }
     }
 
+    let average_n_connections = average_connections(&graph);
+    println!("\n\n\nRed shuffle blob average connections: {}", average_n_connections);
+    dbg!(graph.edges(NodeIndex::new(1)).count());
+    dbg!(graph.edges(NodeIndex::new(3)).count());
+    dbg!(graph.neighbors(NodeIndex::new(4)).count());
+    println!("\n\n\n");
+
     return graph;
 }
 
-fn get_positons(graph: &Graph::<NodeData, EdgeData>) -> Vec<Vec3> {
+pub fn connect_members_no_shuffle(
+    mut graph: UnGraph<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng,
+    n_member_candidates: usize) -> UnGraph<NodeData, EdgeData> 
+{
+    //TODO: JUST FOR TESTING
+    for node in graph.node_weights_mut() {
+        if node.color == Color::BLUE {
+            continue;
+        }
+
+        node.color = Color::GOLD
+    }
+
+    //Does repeat work. In fact, a lot of this code does
+    let mut stop = false;
+    while stop == false {
+        let nodes = graph.node_indices().collect::<Vec<NodeIndex>>();
+        let start_idx = *nodes.choose(rng).unwrap();
+
+        let start_node = graph.node_weight(start_idx).unwrap().clone();
+        let n_edges = graph.edges(start_idx).count();
+        // dbg!(&n_edges);
+        if n_edges > start_node.n_connections {
+            // dbg!("Triggered 1");
+            continue;
+        }
+
+        //Go 1-by-1 to not do less repeat work 
+        let candidates = &start_node.neighbor_distances;
+        let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
+        candidates.shuffle(rng);
+
+        for (candidate_idx, candidate_distance) in candidates {
+            //Maybe it should mark the fact it tried one candidate already
+            let candidate_node = graph.node_weight(*candidate_idx).unwrap();
+            let n_edges = graph.edges(*candidate_idx).count();
+            if n_edges > candidate_node.n_connections {
+                // dbg!("Triggered 2");
+                continue;
+            }
+
+            graph.update_edge(
+                start_idx, 
+                *candidate_idx, 
+                EdgeData::new(*candidate_distance)
+            );
+            println!("Updated edge between {:?} and {:?}", start_idx, candidate_idx);
+
+            //It stops looking at candidates after one is update to
+            //keep it roughly uniformly distributed
+            break;
+        }
+
+        if is_blob_connected(&graph) == true {
+            stop = true;
+            break;
+        }
+    }
+
+    let average_n_connections = average_connections(&graph);
+    println!("\n\n\nGold no shuffle blob average connections: {}\n\n\n", average_n_connections);
+
+    return graph;
+}
+
+
+fn get_positons(graph: &UnGraph<NodeData, EdgeData>) -> Vec<Vec3> {
     //Sort based on distance, ascending
     let positions_list: Vec<Vec3> = graph
         .node_weights()
@@ -153,7 +244,7 @@ fn get_positons(graph: &Graph::<NodeData, EdgeData>) -> Vec<Vec3> {
 
 
 pub fn is_member_clipping(
-    graph: &Graph::<NodeData, EdgeData>, 
+    graph: &UnGraph<NodeData, EdgeData>, 
     member_pos: &Vec3,
     distance_tolerance: f32) -> bool 
 {

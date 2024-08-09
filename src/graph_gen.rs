@@ -1,5 +1,6 @@
 use bevy::math::Vec3;
-use petgraph::graph::{Graph, NodeIndex};
+use petgraph::graph::{Graph, NodeIndex, UnGraph};
+use petgraph::Undirected;
 use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -9,8 +10,8 @@ use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
 use crate::disc_blob;
 
 fn merge_graphs(
-    graph1: &mut Graph::<NodeData, EdgeData>, 
-    graph2: Graph::<NodeData, EdgeData>) {
+    graph1: &mut UnGraph<NodeData, EdgeData>, 
+    graph2: UnGraph<NodeData, EdgeData>) {
 
     let index_offset = graph1.node_count();
 
@@ -35,11 +36,10 @@ fn merge_graphs(
     }
 } 
 
-pub fn generate_graph(universe: Universe) -> Graph::<NodeData, EdgeData> {
+pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
-    let mut graph = Graph::<NodeData, EdgeData>::new();
+    let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
     //Make sure blobs don't spawn too close
-    //TODO: For merging blobs, make it Vec<(BlobType, Vec3)>
     let mut center_positions: Vec<Vec3> = Vec::new();
 
     //Place blobs

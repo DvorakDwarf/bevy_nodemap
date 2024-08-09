@@ -1,7 +1,7 @@
 use bevy::math::Vec3;
 use bevy::prelude::Color;
-use petgraph::algo;
-use petgraph::graph::{Graph, NodeIndex};
+use petgraph::{algo, Undirected};
+use petgraph::graph::{Graph, NodeIndex, UnGraph};
 use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -19,8 +19,10 @@ fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
     return distance;
 }
 
-pub fn calculate_outer_distances(mut graph: Graph::<NodeData, EdgeData>) 
-    -> Graph::<NodeData, EdgeData> {
+pub fn calculate_outer_distances(
+    mut graph: UnGraph<NodeData, EdgeData>
+    ) -> UnGraph<NodeData, EdgeData>
+{
 
     //Borrow checker fighting
     let immutable_graph = graph.clone();
@@ -46,7 +48,10 @@ pub fn calculate_outer_distances(mut graph: Graph::<NodeData, EdgeData>)
     return graph;
 }
 
-fn get_centers(graph: &Graph::<NodeData, EdgeData>) -> Vec<(NodeIndex, &NodeData)> {
+fn get_centers(
+    graph: &UnGraph<NodeData, EdgeData>
+) -> Vec<(NodeIndex, &NodeData)> 
+{
     let centres = graph.node_indices()
         .map(|idx| (idx, graph.node_weight(idx).unwrap()))
         .filter(|x| x.1.role == NodeType::Center)
@@ -56,11 +61,11 @@ fn get_centers(graph: &Graph::<NodeData, EdgeData>) -> Vec<(NodeIndex, &NodeData
 }
 
 fn connect_blob(
-    mut graph: Graph::<NodeData, EdgeData>, 
+    mut graph: UnGraph<NodeData, EdgeData>, 
     rng: &mut ChaCha8Rng,
     n_interblob_edges: usize,
     idx_1: NodeIndex, 
-    idx_2: NodeIndex) -> Graph<NodeData, EdgeData> 
+    idx_2: NodeIndex) -> UnGraph<NodeData, EdgeData> 
 {
     //Kinda double work but idc, cleaner arguments
     let center_1 = graph.node_weight(idx_1).unwrap();
@@ -91,7 +96,9 @@ fn connect_blob(
     }
     distances.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
     let distances = &mut distances[0..n_interblob_edges];
-    distances.shuffle(rng);
+    
+    //This is useless unless I pick 3 random from top 5 choices
+    // distances.shuffle(rng);
 
     for connection in distances {
         graph.update_edge(
@@ -105,11 +112,11 @@ fn connect_blob(
 }
 
 fn pick_blob_couples(
-    mut graph: Graph::<NodeData, EdgeData>,
+    mut graph: UnGraph<NodeData, EdgeData>,
     blob_order: &Vec<(NodeIndex, NodeData)>,
     centre_indices: &Vec<NodeIndex>,
     rng: &mut ChaCha8Rng,
-    n_blob_candidates: usize) -> (Graph<NodeData, EdgeData>, bool) 
+    n_blob_candidates: usize) -> (UnGraph<NodeData, EdgeData>, bool) 
 {
     for (start_idx, centre_node) in blob_order {
         println!("Connecting blob {:?}", start_idx);
@@ -160,9 +167,9 @@ fn pick_blob_couples(
 }
 
 pub fn connect_blobs(
-    mut graph: Graph::<NodeData, EdgeData>, 
+    mut graph: UnGraph<NodeData, EdgeData>, 
     rng: &mut ChaCha8Rng,
-    universe: &Universe) -> Graph::<NodeData, EdgeData> 
+    universe: &Universe) -> UnGraph<NodeData, EdgeData>
 {
     //Make sure each one is reached at least once in a full run
     //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
