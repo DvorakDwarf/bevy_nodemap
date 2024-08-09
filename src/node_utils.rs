@@ -90,16 +90,79 @@ fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
         .node_indices()
         .map(|idx| graph.edges(idx).count()).collect();
 
-    dbg!(&total_connections);
     let average = total_connections.iter().sum::<usize>() as f32 / n_nodes;
 
     return average;
 }
 
+fn get_candidates(rng: &mut ChaCha8Rng, start_node: NodeData, n_member_candidates: usize) 
+    -> Vec<(NodeIndex, f32)>
+{
+    //Same idea as with node_order
+    //Make sure it's sorted to get the closest nodes
+    let candidates = &start_node.neighbor_distances;
+    let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
+    candidates.shuffle(rng);
+    let candidates = candidates.to_vec();
+
+    return candidates;
+}
+
+//The skeleton itself is rather boring, add more connections for fun
+fn add_blob_fluff(
+    mut graph: UnGraph<NodeData, EdgeData>, 
+    rng: &mut ChaCha8Rng,
+    n_member_candidates: usize,
+    fluff_requirement: f32) -> UnGraph<NodeData, EdgeData> 
+{
+    let mut fluff = average_connections(&graph);
+
+    while fluff < fluff_requirement {
+        for start_idx in graph.node_indices() {
+            let start_node = graph.node_weight(start_idx).unwrap().clone();
+
+            //Try next one if node full
+            let n_edges = graph.edges(start_idx).count();
+            if n_edges > start_node.n_connections {
+                // dbg!("Triggered 1");
+                continue;
+            }
+
+            let candidates = get_candidates(rng, start_node, n_member_candidates);
+            for (candidate_idx, candidate_distance) in candidates {
+                //Maybe it should mark the fact it tried one candidate already
+                let candidate_node = graph.node_weight(candidate_idx).unwrap();
+                let n_edges = graph.edges(candidate_idx).count();
+                if n_edges > candidate_node.n_connections {
+                    // dbg!("Triggered 2");
+                    continue;
+                }
+
+                graph.update_edge(
+                    start_idx, 
+                    candidate_idx, 
+                    EdgeData::with_color(candidate_distance, Color::GRAY)
+                );
+                println!("Added fluff between {:?} and {:?}", start_idx, candidate_idx);
+
+                //It stops looking at candidates after one is updated to
+                //keep it roughly uniformly distributed
+                break;
+            }
+
+            fluff = average_connections(&graph);
+            println!("New fluff amount: {}", fluff);
+        }
+    }
+
+    return graph;
+}
+
 pub fn connect_members(
     mut graph: UnGraph<NodeData, EdgeData>, 
     rng: &mut ChaCha8Rng,
-    n_member_candidates: usize) -> UnGraph<NodeData, EdgeData> 
+    n_member_candidates: usize,
+    fluff_requirement: f32) -> UnGraph<NodeData, EdgeData> 
 {
     //Does repeat work. In fact, a lot of this code does
     let mut stop = false;
@@ -113,7 +176,7 @@ pub fn connect_members(
         //CORRECTION: IT SEEMS THAT WAY BECAUSE LINES GO THROUGH NODES
         //IT WORKS FINE WITH LOW n_candidates BUT I SHOULD FIX THIS
         for start_idx in node_order {
-            let mut start_node = graph.node_weight(start_idx).unwrap().clone();
+            let start_node = graph.node_weight(start_idx).unwrap().clone();
             let n_edges = graph.edges(start_idx).count();
             // dbg!(&n_edges);
             if n_edges > start_node.n_connections {
@@ -121,16 +184,12 @@ pub fn connect_members(
                 continue;
             }
 
-            //Same idea as with node_order
-            //Make sure it's sorted to get the closest nodes
-            let candidates = &start_node.neighbor_distances;
-            let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
-            candidates.shuffle(rng);
+            let candidates = get_candidates(rng, start_node, n_member_candidates);
 
             for (candidate_idx, candidate_distance) in candidates {
                 //Maybe it should mark the fact it tried one candidate already
-                let candidate_node = graph.node_weight(*candidate_idx).unwrap();
-                let n_edges = graph.edges(*candidate_idx).count();
+                let candidate_node = graph.node_weight(candidate_idx).unwrap();
+                let n_edges = graph.edges(candidate_idx).count();
                 if n_edges > candidate_node.n_connections {
                     // dbg!("Triggered 2");
                     continue;
@@ -138,8 +197,8 @@ pub fn connect_members(
 
                 graph.update_edge(
                     start_idx, 
-                    *candidate_idx, 
-                    EdgeData::new(*candidate_distance)
+                    candidate_idx, 
+                    EdgeData::new(candidate_distance)
                 );
                 println!("Updated edge between {:?} and {:?}", start_idx, candidate_idx);
 
@@ -154,6 +213,8 @@ pub fn connect_members(
             }
         }
     }
+
+    graph = add_blob_fluff(graph, rng, n_member_candidates, fluff_requirement);
 
     let average_n_connections = average_connections(&graph);
     println!("\n\n\nRed shuffle blob average connections: {}", average_n_connections);
@@ -194,14 +255,12 @@ pub fn connect_members_no_shuffle(
         }
 
         //Go 1-by-1 to not do less repeat work 
-        let candidates = &start_node.neighbor_distances;
-        let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
-        candidates.shuffle(rng);
+        let candidates = get_candidates(rng, start_node, n_member_candidates);
 
         for (candidate_idx, candidate_distance) in candidates {
             //Maybe it should mark the fact it tried one candidate already
-            let candidate_node = graph.node_weight(*candidate_idx).unwrap();
-            let n_edges = graph.edges(*candidate_idx).count();
+            let candidate_node = graph.node_weight(candidate_idx).unwrap();
+            let n_edges = graph.edges(candidate_idx).count();
             if n_edges > candidate_node.n_connections {
                 // dbg!("Triggered 2");
                 continue;
@@ -209,8 +268,8 @@ pub fn connect_members_no_shuffle(
 
             graph.update_edge(
                 start_idx, 
-                *candidate_idx, 
-                EdgeData::new(*candidate_distance)
+                candidate_idx, 
+                EdgeData::new(candidate_distance)
             );
             println!("Updated edge between {:?} and {:?}", start_idx, candidate_idx);
 

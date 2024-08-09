@@ -63,8 +63,15 @@ pub fn generate_disc_blob(
 
     //TODO: JUST FOR TESTING
     match center_postions.len() {
-        1 => {graph = node_utils::connect_members_no_shuffle(graph, rng, universe.n_member_candidates);},
-        _ => graph = node_utils::connect_members(graph, rng, universe.n_member_candidates)
+        1 => {graph = node_utils::connect_members_no_shuffle(
+                graph, 
+                rng, 
+                universe.n_member_candidates)},
+        _ => graph = node_utils::connect_members(
+                graph, 
+                rng, 
+                universe.n_member_candidates,
+                universe.fluff_requirement)
     }
 
     return graph;

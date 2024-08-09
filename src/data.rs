@@ -123,6 +123,7 @@ pub struct Universe {
     pub blob_distance_tolerance: f32,
     pub n_blob_candidates: usize,
     pub n_member_candidates: usize,
+    pub fluff_requirement: f32,
 }
 
 #[derive(Debug)]

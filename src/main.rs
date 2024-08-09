@@ -25,6 +25,7 @@ fn main() {
         blob_distance_tolerance: 30.0,
         n_blob_candidates: 1,
         n_member_candidates: 4,  
+        fluff_requirement: 3.2,
     };
     let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);
