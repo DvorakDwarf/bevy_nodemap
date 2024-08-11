@@ -126,6 +126,9 @@ pub struct Universe {
     pub n_sparse_nodes: usize,
     pub sparse_distance_tolerance: f32,
     pub n_sparse_connections: usize,
+    pub blob_combo_chance: usize,
+    pub disc_radius: f32,
+    pub disc_height: f32
 }
 
 #[derive(Debug)]

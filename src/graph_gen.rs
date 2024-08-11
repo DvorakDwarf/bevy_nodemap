@@ -6,7 +6,7 @@ use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::blob_utils::{calculate_outer_distances, connect_blobs};
+use crate::blob_utils::{calculate_outer_distances, connect_blobs, extend_blob};
 use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
 use crate::disc_blob;
 use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_position};
@@ -106,6 +106,15 @@ fn add_sparse_nodes(
     return graph;
 }
 
+//TODO: TODO: TODO:
+//Make it so it does extension again and again until it works
+//Could either do that by having the function return option or do it inside
+//Could be a bool argument telling it's an extension
+//Clean up generate_graph
+//one function for extend, one for regular
+//Function to do all the stuff after disc_blob::generate_disc_blob
+//Make extension work on any blob type
+
 pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
     let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
@@ -114,10 +123,33 @@ pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
 
     //Place blobs
     for _ in 0..universe.n_blobs {
+        //TODO: APPLY TO MULTIPLE BLOB_TYPES
+        if (rng.gen_range(1..=100) <= universe.blob_combo_chance) && 
+        (center_positions.len() > 0) {
+            let center_pos = *center_positions.choose(&mut rng).unwrap();
+            let blob_extension = extend_blob(&mut rng, &universe, BlobType::Disc, center_pos);
+
+            let new_blob = disc_blob::generate_disc_blob(
+                &universe, &center_positions, &mut rng, Some(blob_extension)
+            );
+            let new_center = new_blob
+                .node_weights()
+                .find(|x| x.role == NodeType::Center)
+                .unwrap();
+            let new_center_pos = Vec3::new(new_center.x, new_center.y, new_center.z);
+            center_positions.push(new_center_pos);
+            merge_graphs(&mut graph, new_blob);
+
+            println!("\n\n\n IT HAPPENED, WOOOOOOOOO\n\n\n");
+
+            //Don't go on to the normal process
+            continue;
+        }
+
         match universe.blob_variant {
             BlobType::Disc => { 
                 let new_blob = disc_blob::generate_disc_blob(
-                    &universe, &center_positions, &mut rng
+                    &universe, &center_positions, &mut rng, None
                 );
                 let new_center = new_blob
                     .node_weights()

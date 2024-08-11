@@ -6,8 +6,8 @@ use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::data::{EdgeData, NodeData, NodeType, Universe};
-use crate::node_utils::{get_sorted_distances, is_blob_connected};
+use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
+use crate::node_utils::{self, get_sorted_distances, is_blob_connected};
 
 fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
     let distance = (
@@ -210,4 +210,25 @@ pub fn is_blob_clipping(
     }
 
     return false;
+}
+
+pub fn extend_blob(
+    rng: &mut ChaCha8Rng, 
+    universe: &Universe, 
+    variant: BlobType, 
+    center_pos: Vec3
+) -> Vec3 
+{
+    let extension_position = match variant {
+        BlobType::Disc => {
+            node_utils::rand_position(
+                universe.disc_radius * 2.0, 
+                universe.disc_height * 2.0, 
+                center_pos, 
+                rng
+            )
+        }
+    };
+
+    return extension_position;
 }

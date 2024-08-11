@@ -37,8 +37,8 @@ fn main() {
         n_blobs: 10,
         blob_variant: BlobType::Disc,
         size: UniverseSize {
-            radius: 60.0,
-            height: 150.0
+            radius: 80.0,
+            height: 15.0
         },
         no_no_distance: 4.0,
         blob_distance_tolerance: 40.0,
@@ -50,6 +50,9 @@ fn main() {
         n_sparse_nodes: 11,
         sparse_distance_tolerance: 17.0,
         n_sparse_connections: 3,
+        blob_combo_chance: 10,
+        disc_radius: 20.0,
+        disc_height: 7.0,
     };
     let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);

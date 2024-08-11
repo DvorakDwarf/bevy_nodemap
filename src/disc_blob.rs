@@ -13,33 +13,41 @@ use crate::node_utils::{self, is_member_clipping};
 pub fn generate_disc_blob(
     universe: &Universe, 
     center_postions: &Vec<Vec3>,
-    mut rng: &mut ChaCha8Rng) -> UnGraph<NodeData, EdgeData>
+    mut rng: &mut ChaCha8Rng,
+    start_pos: Option<Vec3>) -> UnGraph<NodeData, EdgeData>
 {
     let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
     
-    //Maybe these should be arguments ?
-    let radius: f32 = 20.0;
-    let height: f32 = 7.0;
+    //TODO: FIX
+    let radius: f32 = universe.disc_radius;
+    let height: f32 = universe.disc_height;
 
     //Create the first blob origin
-    let mut origin_pos = Vec3::ZERO;
-    loop {
-        origin_pos = node_utils::rand_position(
-            universe.size.radius, 
-            universe.size.height, 
-            Vec3::new(0.0, 0.0, 0.0), 
-            &mut rng
-        );
-
-        let blob_clipping = is_blob_clipping(
-            center_postions, 
-            origin_pos, 
-            universe.blob_distance_tolerance
-        );
-        if blob_clipping == false {
-            break;
+    let origin_pos: Vec3 = match start_pos {
+        Some(pos) => pos,
+        None =>  {
+            let mut proposed_pos;
+            loop {
+                proposed_pos = node_utils::rand_position(
+                    universe.size.radius, 
+                    universe.size.height, 
+                    Vec3::new(0.0, 0.0, 0.0), 
+                    &mut rng
+                );
+        
+                let blob_clipping = is_blob_clipping(
+                    center_postions, 
+                    proposed_pos, 
+                    10.0
+                );
+                if blob_clipping == false {
+                    break;
+                }
+            }
+            proposed_pos
         }
-    }
+    };
+
 
     let mut origin_data = NodeData::from(origin_pos);
     origin_data.color = Color::BLUE;
