@@ -19,7 +19,7 @@ pub fn generate_disc_blob(
     
     //Maybe these should be arguments ?
     let radius: f32 = 20.0;
-    let height: f32 = 10.0;
+    let height: f32 = 7.0;
 
     //Create the first blob origin
     let mut origin_pos = Vec3::ZERO;
@@ -63,10 +63,10 @@ pub fn generate_disc_blob(
 
     //TODO: JUST FOR TESTING
     match center_postions.len() {
-        1 => {graph = node_utils::connect_members_no_shuffle(
-                graph, 
-                rng, 
-                universe.n_member_candidates)},
+        // 1 => {graph = node_utils::connect_members_no_shuffle(
+        //         graph, 
+        //         rng, 
+        //         universe.n_member_candidates)},
         _ => graph = node_utils::connect_members(
                 graph, 
                 rng, 

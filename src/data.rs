@@ -10,7 +10,7 @@ use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeType {
-    Center, Member
+    Center, Member, Sparse
 }
 
 #[derive(Debug, Clone)]
@@ -122,7 +122,10 @@ pub struct Universe {
     pub n_member_candidates: usize,
     pub fluff_requirement: f32,
     pub min_connections: usize, //TODO: not actually used
-    pub max_connections: usize //TODO: not actually use
+    pub max_connections: usize, //TODO: not actually use
+    pub n_sparse_nodes: usize,
+    pub sparse_distance_tolerance: f32,
+    pub n_sparse_connections: usize,
 }
 
 #[derive(Debug)]

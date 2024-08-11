@@ -96,7 +96,7 @@ fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
     return average;
 }
 
-fn get_candidates(rng: &mut ChaCha8Rng, start_node: NodeData, n_member_candidates: usize) 
+pub fn get_candidates(rng: &mut ChaCha8Rng, start_node: NodeData, n_member_candidates: usize) 
     -> Vec<(NodeIndex, f32)>
 {
     //Same idea as with node_order
@@ -179,10 +179,7 @@ pub fn connect_members(
         let mut node_order = graph.node_indices().collect::<Vec<NodeIndex>>();
         node_order.shuffle(rng);
 
-
-        //TODO: TOO MANY EDGES
-        //CORRECTION: IT SEEMS THAT WAY BECAUSE LINES GO THROUGH NODES
-        //IT WORKS FINE WITH LOW n_candidates BUT I SHOULD FIX THIS
+        //TODO: Edges clip through nodes
         for start_idx in node_order {
             let start_node = graph.node_weight(start_idx).unwrap().clone();
             let n_edges = graph.edges(start_idx).count();
