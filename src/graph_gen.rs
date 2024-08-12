@@ -110,6 +110,7 @@ fn add_sparse_nodes(
 //Make it so it does extension again and again until it works
 //Could either do that by having the function return option or do it inside
 //Could be a bool argument telling it's an extension
+//Maybe gen blob is called recursively
 //Clean up generate_graph
 //one function for extend, one for regular
 //Function to do all the stuff after disc_blob::generate_disc_blob
@@ -123,40 +124,11 @@ pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
 
     //Place blobs
     for _ in 0..universe.n_blobs {
-        //TODO: APPLY TO MULTIPLE BLOB_TYPES
-        if (rng.gen_range(1..=100) <= universe.blob_combo_chance) && 
-        (center_positions.len() > 0) {
-            let center_pos = *center_positions.choose(&mut rng).unwrap();
-            let blob_extension = extend_blob(&mut rng, &universe, BlobType::Disc, center_pos);
-
-            let new_blob = disc_blob::generate_disc_blob(
-                &universe, &center_positions, &mut rng, Some(blob_extension)
-            );
-            let new_center = new_blob
-                .node_weights()
-                .find(|x| x.role == NodeType::Center)
-                .unwrap();
-            let new_center_pos = Vec3::new(new_center.x, new_center.y, new_center.z);
-            center_positions.push(new_center_pos);
-            merge_graphs(&mut graph, new_blob);
-
-            println!("\n\n\n IT HAPPENED, WOOOOOOOOO\n\n\n");
-
-            //Don't go on to the normal process
-            continue;
-        }
-
         match universe.blob_variant {
             BlobType::Disc => { 
                 let new_blob = disc_blob::generate_disc_blob(
-                    &universe, &center_positions, &mut rng, None
+                    &universe, &mut center_positions, &mut rng
                 );
-                let new_center = new_blob
-                    .node_weights()
-                    .find(|x| x.role == NodeType::Center)
-                    .unwrap();
-                let new_center_pos = Vec3::new(new_center.x, new_center.y, new_center.z);
-                center_positions.push(new_center_pos);
                 merge_graphs(&mut graph, new_blob);
             },
         }

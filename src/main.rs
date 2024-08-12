@@ -37,22 +37,23 @@ fn main() {
         n_blobs: 10,
         blob_variant: BlobType::Disc,
         size: UniverseSize {
-            radius: 80.0,
+            radius: 100.0,
             height: 15.0
         },
-        no_no_distance: 4.0,
+        no_no_distance: 5.0,
         blob_distance_tolerance: 40.0,
         n_blob_candidates: 3,
         n_member_candidates: 4,  
         fluff_requirement: 3.2,
         min_connections: 2, 
         max_connections: 6,
-        n_sparse_nodes: 11,
-        sparse_distance_tolerance: 17.0,
+        n_sparse_nodes: 12,
+        sparse_distance_tolerance: 12.0,
         n_sparse_connections: 3,
-        blob_combo_chance: 10,
-        disc_radius: 20.0,
-        disc_height: 7.0,
+        blob_combo_chance: 20,
+        disc_radius: 25.0,
+        disc_height: 8.0,
+        disc_extension_distance: 10.0
     };
     let graph = generate_graph(universe);
     let global_state = GlobalState::new(graph);
@@ -131,6 +132,9 @@ fn spawn_graph(
 
 fn draw_lines(mut gizmos: Gizmos, global_state: Res<GlobalState>) {
     let graph = &global_state.graph;
+
+    //TODO:
+    //Maybe check if any duplicate edges exist
 
     for edge_idx in graph.edge_indices() {
         let endpoints = graph.edge_endpoints(edge_idx);

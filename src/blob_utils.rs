@@ -212,6 +212,22 @@ pub fn is_blob_clipping(
     return false;
 }
 
+// //RECURSIVE
+// pub fn generate_extension_amount(
+//     rng: &mut ChaCha8Rng,
+//     mut n_centers: usize,
+//     blob_combo_chance: usize
+// ) {
+//     if rng.gen_range(1..=100) <= blob_combo_chance {
+//         n_centers += 1;
+//         generate_extension_amount(
+//             rng, 
+//             n_centers, 
+//             blob_combo_chance
+//         );
+//     }
+// }
+
 pub fn extend_blob(
     rng: &mut ChaCha8Rng, 
     universe: &Universe, 
@@ -222,8 +238,8 @@ pub fn extend_blob(
     let extension_position = match variant {
         BlobType::Disc => {
             node_utils::rand_position(
-                universe.disc_radius * 2.0, 
-                universe.disc_height * 2.0, 
+                universe.disc_radius * 1.0, 
+                universe.disc_height * 1.0, 
                 center_pos, 
                 rng
             )

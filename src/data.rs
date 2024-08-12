@@ -1,16 +1,12 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use petgraph::graph::Graph;
 use petgraph::graph::NodeIndex;
 use petgraph::graph::UnGraph;
-use petgraph::Undirected;
-use rand::prelude::*;
-use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeType {
-    Center, Member, Sparse
+    Center, Member, Sparse, Extension
 }
 
 #[derive(Debug, Clone)]
@@ -128,7 +124,8 @@ pub struct Universe {
     pub n_sparse_connections: usize,
     pub blob_combo_chance: usize,
     pub disc_radius: f32,
-    pub disc_height: f32
+    pub disc_height: f32,
+    pub disc_extension_distance: f32
 }
 
 #[derive(Debug)]
