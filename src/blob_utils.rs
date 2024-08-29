@@ -6,7 +6,7 @@ use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
+use crate::data::*;
 use crate::node_utils::{self, get_sorted_distances, is_blob_connected};
 
 fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
@@ -199,12 +199,12 @@ pub fn connect_blobs(
 } 
 
 pub fn is_blob_clipping(
-    center_postions: &Vec<Vec3>, 
+    locations: &Vec<Location>, 
     origin_pos: Vec3,
     blob_distance_tolerence: f32) -> bool 
 {
-    for position in center_postions {
-        if origin_pos.distance(*position) < blob_distance_tolerence {
+    for location in locations {
+        if origin_pos.distance(location.center_pos) < blob_distance_tolerence {
             return true;
         }
     }

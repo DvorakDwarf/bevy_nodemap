@@ -7,7 +7,7 @@ use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
 use crate::blob_utils::{calculate_outer_distances, connect_blobs, extend_blob};
-use crate::data::{BlobType, EdgeData, NodeData, NodeType, Universe};
+use crate::data::{BlobType, EdgeData, Location, NodeData, NodeType, Universe};
 use crate::disc_blob;
 use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_position};
 
@@ -120,14 +120,14 @@ pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
     let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
     //Make sure blobs don't spawn too close
-    let mut center_positions: Vec<Vec3> = Vec::new();
+    let mut locations: Vec<Location> = Vec::new();
 
     //Place blobs
     for _ in 0..universe.n_blobs {
         match universe.blob_variant {
             BlobType::Disc => { 
                 let new_blob = disc_blob::generate_disc_blob(
-                    &universe, &mut center_positions, &mut rng
+                    &universe, &mut locations, &mut rng
                 );
                 merge_graphs(&mut graph, new_blob);
             },

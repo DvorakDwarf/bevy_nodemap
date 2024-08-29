@@ -103,6 +103,34 @@ pub enum BlobType {
     Disc
 }
 
+#[derive(Debug)]
+pub enum VoidType {
+    Circle
+}
+
+#[derive(Debug)]
+pub enum LocationType {
+    Blob(BlobType),
+    Void(VoidType)
+}
+
+#[derive(Debug)]
+pub struct Location {
+    pub location_type: LocationType,
+    pub center_pos: Vec3,
+    pub distance_tolerance: f32
+}
+
+// impl Location {
+//     fn new(center_pos: Vec3, location_type: LocationType) -> Location {
+//         return Location {
+//             location_type,
+//             center_pos,
+//             distance_tolerance
+//         };
+//     }
+// }
+
 //TODO: variant will be an array/vector/something with possible variants
 //Which are picked randomly or weighted and then randomly picked
 //There will also be some amount of nodes allocated per blob in a range

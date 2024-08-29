@@ -13,25 +13,6 @@ use data::{BlobType, GlobalState, Universe, UniverseSize};
 use graph_gen::generate_graph;
 
 fn main() { 
-    // let universe = Universe {
-    //     n_nodes: 20,
-    //     n_blobs: 10,
-    //     blob_variant: BlobType::Disc,
-    //     size: UniverseSize {
-    //         radius: 80.0,
-    //         height: 15.0
-    //     },
-    //     no_no_distance: 4.0,
-    //     blob_distance_tolerance: 40.0,
-    //     n_blob_candidates: 3,
-    //     n_member_candidates: 4,  
-    //     fluff_requirement: 3.2,
-    //     min_connections: 2, 
-    //     max_connections: 6,
-    //     n_sparse_nodes: 11,
-    //     sparse_distance_tolerance: 17.0,
-    //     n_sparse_connections: 3,
-    // };
     let universe = Universe {
         n_nodes: 20,
         n_blobs: 10,
