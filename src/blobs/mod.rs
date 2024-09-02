@@ -1,6 +1,6 @@
-pub mod disc_blob;
-pub mod sphere_blob;
-pub mod sphere_surface_blob;
+mod disc_blob;
+mod sphere_blob;
+mod sphere_surface_blob;
 
 pub use disc_blob::DiscBlob;
 pub use sphere_blob::SphereBlob;
