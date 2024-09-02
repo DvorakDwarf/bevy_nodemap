@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::f32::consts::PI;
+
 use petgraph::{algo, Undirected};
 use petgraph::graph::{Graph, NodeIndex, UnGraph};
 use rand::{self, Rng};
@@ -253,9 +254,9 @@ pub fn is_member_clipping(
     return false;
 }
 
-pub fn rand_position(
-    radius: f32, 
-    height: f32, 
+pub fn rand_disc_position(
+    radius: f32,
+    height: f32,
     origin_pos: Vec3, 
     rng: &mut ChaCha8Rng) -> Vec3 {
 

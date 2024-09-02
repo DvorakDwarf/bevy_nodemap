@@ -6,10 +6,9 @@ use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::blob_utils::{calculate_outer_distances, connect_blobs, extend_blob};
-use crate::data::{BlobType, EdgeData, Location, NodeData, NodeType, Universe};
-use crate::disc_blob;
-use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_position};
+use crate::inter_blob_utils::{calculate_outer_distances, connect_blobs};
+use crate::data::*;
+use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_disc_position};
 
 fn merge_graphs(
     graph1: &mut UnGraph<NodeData, EdgeData>, 
@@ -49,7 +48,7 @@ fn add_sparse_nodes(
     for _ in 0..universe.n_sparse_nodes {
         let mut sparse_pos;
         loop {
-            sparse_pos = rand_position(
+            sparse_pos = rand_disc_position(
                 universe.size.radius, 
                 universe.size.height, 
                 origin_pos, 
@@ -121,17 +120,21 @@ pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
     let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
     //Make sure blobs don't spawn too close
     let mut locations: Vec<Location> = Vec::new();
+    
+    //Add voids here. A location with no nodes but a distance tolerance
+    locations.push(Location{
+        location_type: LocationType::Void(VoidType::Sphere),
+        center_pos: Vec3::ZERO,
+        distance_tolerance: 50.0
+    });
 
     //Place blobs
     for _ in 0..universe.n_blobs {
-        match universe.blob_variant {
-            BlobType::Disc => { 
-                let new_blob = disc_blob::generate_disc_blob(
-                    &universe, &mut locations, &mut rng
-                );
-                merge_graphs(&mut graph, new_blob);
-            },
-        }
+        let selected_variant = universe.blob_variants.choose(&mut rng).unwrap();
+        let new_blob = selected_variant.generate_blob(
+            &universe, &mut locations, &mut rng
+        );
+        merge_graphs(&mut graph, new_blob);
     }
 
     //Connect the blobs

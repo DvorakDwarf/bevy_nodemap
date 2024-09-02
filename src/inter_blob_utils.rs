@@ -1,13 +1,13 @@
 use bevy::math::Vec3;
 use bevy::prelude::Color;
-use petgraph::{algo, Undirected};
-use petgraph::graph::{Graph, NodeIndex, UnGraph};
+use petgraph::algo;
+use petgraph::graph::{NodeIndex, UnGraph};
 use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
 use crate::data::*;
-use crate::node_utils::{self, get_sorted_distances, is_blob_connected};
+use crate::node_utils::{get_sorted_distances, is_blob_connected};
 
 fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
     let distance = (
@@ -201,10 +201,16 @@ pub fn connect_blobs(
 pub fn is_blob_clipping(
     locations: &Vec<Location>, 
     origin_pos: Vec3,
-    blob_distance_tolerence: f32) -> bool 
+    blob_distance_tolerance: Option<f32>) -> bool 
 {
+    //        dbg!(&locations);
     for location in locations {
-        if origin_pos.distance(location.center_pos) < blob_distance_tolerence {
+        let clipping_tolerance = match blob_distance_tolerance {
+            Some(override_value) => override_value,
+            None => location.distance_tolerance
+        };
+
+        if origin_pos.distance(location.center_pos) < clipping_tolerance {
             return true;
         }
     }
@@ -227,24 +233,3 @@ pub fn is_blob_clipping(
 //         );
 //     }
 // }
-
-pub fn extend_blob(
-    rng: &mut ChaCha8Rng, 
-    universe: &Universe, 
-    variant: BlobType, 
-    center_pos: Vec3
-) -> Vec3 
-{
-    let extension_position = match variant {
-        BlobType::Disc => {
-            node_utils::rand_position(
-                universe.disc_radius * 1.0, 
-                universe.disc_height * 1.0, 
-                center_pos, 
-                rng
-            )
-        }
-    };
-
-    return extension_position;
-}
