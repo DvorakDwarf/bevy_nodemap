@@ -36,6 +36,7 @@ impl NodeData {
     }
 }
 
+// DESCRIBED HOW TO DO PRETTY HERE https://www.karlsims.com/random-in-sphere.html
 // //Here lies my attempt at using a normal distribution to control
 // //the number of connections. Do later
 // fn gen_n_connections(min: usize, max: usize) -> usize {
@@ -299,20 +300,6 @@ pub trait Blob {
         }
     
         return self.place_members(local_graph, universe, locations, rng);
-    }
-
-    fn extend_blob(
-        &self,
-        rng: &mut ChaCha8Rng, 
-        center_pos: Vec3
-    ) -> Vec3 
-    {
-        let extension_position = self.rand_extension_position(
-            center_pos, 
-            rng
-        );
-    
-        return extension_position;
     }
 
     fn generate_blob(

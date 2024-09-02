@@ -4,25 +4,25 @@
 use std::f32::consts::PI;
 
 use petgraph::graph::UnGraph;
-use rand::Rng;
 use rand_chacha::ChaCha8Rng;
+use rand::Rng;
 use bevy::prelude::*;
 
 use crate::data::*;
 use crate::node_utils;
 
 #[derive(Debug)]
-pub struct DiscBlob {
+pub struct SphereBlob {
+    pub radius: f32,
+    pub extension_radius: f32,
     pub n_nodes: usize,
     pub n_member_candidates: usize,
     pub fluff_requirement: f32,
     pub combo_chance: usize,
     pub no_no_distance: f32,
-    pub radius: f32,
-    pub height: f32
 }
 
-impl Blob for DiscBlob {
+impl Blob for SphereBlob {
     fn get_combo_chance(&self) -> usize {
         return self.combo_chance;
     }
@@ -32,23 +32,39 @@ impl Blob for DiscBlob {
     fn get_no_no_distance(&self) -> f32 {
         return self.no_no_distance;
     }
+    fn get_extension_distance(&self) -> f32 {
+        return self.extension_radius;
+    }
 
     fn rand_position(
         &self,
         origin_pos: Vec3, 
-        rng: &mut ChaCha8Rng) -> Vec3 {
-    
-        let theta: f32 = rng.gen_range(0.0..2.0*PI);
-    
-        //Why is sqrt there ? I notice it makes it
-        //more circular and more spread apart from the center
-        let x = ((rng.gen::<f32>().sqrt() * self.radius) * theta.cos()) + origin_pos.x;
-        let y = rng.gen_range(0.0..self.height) + origin_pos.y; 
-        let z = ((rng.gen::<f32>().sqrt() * self.radius) * theta.sin()) + origin_pos.z;
-    
+        rng: &mut ChaCha8Rng) -> Vec3 
+    {
+        //Apparently there's a better way but :shrug:
+        let phi: f32 = rng.gen_range(0.0..2.0*PI);
+        let costheta: f32 = rng.gen_range(-1.0..1.0);
+        let u: f32 = rng.gen_range(0.0..1.0);
+
+        let theta = costheta.acos();
+        let r = self.radius * u.cbrt();
+
+        let x = (r * theta.sin() * phi.cos()) + origin_pos.x;
+        let y = (r * theta.sin() * phi.sin()) + origin_pos.y;
+        let z = (r * theta.cos()) + origin_pos.z;
+
         let new_pos = Vec3::new(x, y, z);
     
         return new_pos;
+    }
+
+    fn rand_extension_position(
+        &self,
+        origin_pos: Vec3, 
+        rng: &mut ChaCha8Rng
+    ) -> Vec3 
+    {
+        return self.rand_position(origin_pos, rng) * 1.0;
     }
 
     fn generate_blob(
@@ -69,6 +85,20 @@ impl Blob for DiscBlob {
             self.fluff_requirement
         );
     
+        //UGLY
+        let local_graph = local_graph.map(|_, node_data| {
+            let mut node_data = node_data.clone();
+            node_data.color = match node_data.color {
+                Color::RED => Color::GREEN,
+                Color::GOLD => Color::INDIGO,
+                Color::BLUE => Color::TEAL,
+                _ => node_data.color
+            };
+
+            node_data
+        }, 
+        |_, edge_data| {*edge_data});
+
         return local_graph;
     }
 }

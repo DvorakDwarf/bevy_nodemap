@@ -6,14 +6,15 @@ use bevy_flycam::prelude::*;
 mod data;
 mod graph_gen;
 mod disc_blob;
-// mod sphere_blob;
-// mod sphere_surface_blob;
+mod sphere_blob;
+mod sphere_surface_blob;
 mod node_utils;
 mod inter_blob_utils;
 
 use data::{GlobalState, Universe, UniverseSize};
 use disc_blob::DiscBlob;
 use graph_gen::generate_graph;
+use sphere_blob::SphereBlob;
 
 fn main() { 
     let disc_blob_1 = Box::new(DiscBlob {
@@ -26,10 +27,19 @@ fn main() {
         height: 8.0,
         extension_radius: 10.0,
     });
+    let sphere_blob_1 = Box::new(SphereBlob {
+        n_nodes: 25,
+        n_member_candidates: 4,
+        fluff_requirement: 3.2,
+        combo_chance: 20,
+        no_no_distance: 5.0,
+        radius: 25.0,
+        extension_radius: 10.0,
+    });
 
     let universe = Universe {
         n_blobs: 10,
-        blob_variants: vec![disc_blob_1],
+        blob_variants: vec![disc_blob_1, sphere_blob_1],
         size: UniverseSize {
             radius: 100.0,
             height: 15.0
