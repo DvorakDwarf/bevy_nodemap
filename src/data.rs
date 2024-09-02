@@ -8,9 +8,8 @@ use rand_chacha::ChaCha8Rng;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
-use crate::inter_blob_utils::is_blob_clipping;
+use crate::blob_utils::is_blob_clipping;
 use crate::node_utils::is_member_clipping;
-use crate::disc_blob::DiscBlob;
 use crate::node_utils::rand_disc_position;
 
 #[derive(Debug, Clone, PartialEq)]

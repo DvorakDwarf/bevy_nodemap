@@ -5,18 +5,43 @@ use bevy_flycam::prelude::*;
 
 mod data;
 mod graph_gen;
-mod disc_blob;
-mod sphere_blob;
-mod sphere_surface_blob;
+mod blobs;
 mod node_utils;
-mod inter_blob_utils;
+mod blob_utils;
 
 use data::{GlobalState, Universe, UniverseSize};
-use disc_blob::DiscBlob;
+use blobs::{DiscBlob, SphereBlob, SphereSurfaceBlob};
 use graph_gen::generate_graph;
-use sphere_blob::SphereBlob;
 
 fn main() { 
+    // // Decent
+    // let disc_blob_1 = Box::new(DiscBlob {
+    //     n_nodes: 20,
+    //     n_member_candidates: 4,
+    //     fluff_requirement: 3.2,
+    //     combo_chance: 20,
+    //     no_no_distance: 5.0,
+    //     radius: 25.0,
+    //     height: 8.0,
+    //     extension_radius: 10.0,
+    // });
+
+    // let universe = Universe {
+    //     n_blobs: 10,
+    //     blob_variants: vec![disc_blob_1],
+    //     size: UniverseSize {
+    //         radius: 100.0,
+    //         height: 25.0
+    //     },
+    //     blob_distance_tolerance: 40.0,
+    //     n_blob_candidates: 3,
+    //     min_connections: 2, 
+    //     max_connections: 6,
+    //     n_sparse_nodes: 12,
+    //     sparse_distance_tolerance: 12.0,
+    //     n_sparse_connections: 3,
+    // };
+
     let disc_blob_1 = Box::new(DiscBlob {
         n_nodes: 20,
         n_member_candidates: 4,
@@ -28,7 +53,7 @@ fn main() {
         extension_radius: 10.0,
     });
     let sphere_blob_1 = Box::new(SphereBlob {
-        n_nodes: 25,
+        n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
         combo_chance: 20,
@@ -36,13 +61,22 @@ fn main() {
         radius: 25.0,
         extension_radius: 10.0,
     });
+    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+        n_nodes: 20,
+        n_member_candidates: 3,
+        fluff_requirement: 3.2,
+        combo_chance: 20,
+        no_no_distance: 7.0,
+        radius: 20.0,
+        extension_radius: 20.0,
+    });
 
     let universe = Universe {
         n_blobs: 10,
-        blob_variants: vec![disc_blob_1, sphere_blob_1],
+        blob_variants: vec![disc_blob_1, sphere_blob_1, sphere_surface_blob_1],
         size: UniverseSize {
             radius: 100.0,
-            height: 15.0
+            height: 25.0
         },
         blob_distance_tolerance: 40.0,
         n_blob_candidates: 3,
@@ -60,6 +94,10 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(PlayerPlugin)
+        .insert_resource(MovementSettings {
+            sensitivity: 0.00012, // default: 0.00012
+            speed: 36.0, // default: 12.0
+        })
         .add_plugins(BillboardPlugin)
         .add_systems(Startup, (
             // setup_billboard,

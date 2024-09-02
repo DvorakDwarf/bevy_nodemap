@@ -1,12 +1,11 @@
 use bevy::math::Vec3;
 use bevy::prelude::Color;
-use petgraph::graph::{Graph, NodeIndex, UnGraph};
-use petgraph::Undirected;
+use petgraph::graph::{NodeIndex, UnGraph};
 use rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
-use crate::inter_blob_utils::{calculate_outer_distances, connect_blobs};
+use crate::blob_utils::{calculate_outer_distances, connect_blobs};
 use crate::data::*;
 use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_disc_position};
 
