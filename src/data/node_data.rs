@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, usize};
 use core::fmt::Debug;
 
 use bevy::prelude::*;
@@ -6,12 +6,14 @@ use petgraph::graph::NodeIndex;
 
 use super::NodeType;
 
+//TODO: pos: Vec3 field instead of x, y, z
 #[derive(Debug, Clone)]
 pub struct NodeData {
     pub x: f32,
     pub y: f32,
     pub z: f32,
     pub color: Color,
+    pub blob_idx: usize,
     pub role: NodeType,
     pub n_connections: usize,
     pub neighbor_distances: HashMap<NodeIndex, f32>,
@@ -19,6 +21,23 @@ pub struct NodeData {
 }
 
 impl NodeData {    
+    pub fn default_with_idx(vec: Vec3, blob_idx: usize) -> NodeData {
+        // let n_connections = thread_rng().gen_range(2..6);
+        // dbg!(n_connections);
+
+        return NodeData {
+            x: vec.x,
+            y: vec.y,
+            z: vec.z,
+            color: Color::RED,
+            blob_idx: blob_idx, //usize::MAX if sparse. Jank
+            role: NodeType::Member,
+            n_connections: 999,
+            neighbor_distances: HashMap::new(),
+            outer_distances: HashMap::new()
+        }
+    }
+
     pub fn get_vec(&self) -> Vec3 {
         return Vec3::new(self.x, self.y, self.z)
     }
@@ -36,21 +55,21 @@ impl NodeData {
 //     return normal_sample;
 // }
 
-//TODO: Randomize
-impl From<Vec3> for NodeData {
-    fn from(vec: Vec3) -> NodeData {
-        // let n_connections = thread_rng().gen_range(2..6);
-        // dbg!(n_connections);
+// impl From<Vec3> for NodeData {
+//     fn from(vec: Vec3) -> NodeData {
+//         // let n_connections = thread_rng().gen_range(2..6);
+//         // dbg!(n_connections);
 
-        return NodeData {
-            x: vec.x,
-            y: vec.y,
-            z: vec.z,
-            color: Color::RED,
-            role: NodeType::Member,
-            n_connections: 999,
-            neighbor_distances: HashMap::new(),
-            outer_distances: HashMap::new()
-        }
-    }
-}
+//         return NodeData {
+//             x: vec.x,
+//             y: vec.y,
+//             z: vec.z,
+//             color: Color::RED,
+//             blob_idx: usize::MAX, // If unset, max value. Bit jank
+//             role: NodeType::Member,
+//             n_connections: 999,
+//             neighbor_distances: HashMap::new(),
+//             outer_distances: HashMap::new()
+//         }
+//     }
+// }

@@ -3,6 +3,7 @@
 
 use std::f32::consts::PI;
 
+use petgraph::graph::NodeIndex;
 use petgraph::graph::UnGraph;
 use rand_chacha::ChaCha8Rng;
 use rand::Rng;
@@ -69,12 +70,13 @@ impl Blob for SphereSurfaceBlob {
         &self,
         universe: &Universe, 
         locations: &mut Vec<Location>,
-        rng: &mut ChaCha8Rng
+        rng: &mut ChaCha8Rng,
+        blob_idx: usize
     ) -> UnGraph<NodeData, EdgeData>
     {
         let mut local_graph = UnGraph::<NodeData, EdgeData>::new_undirected();
         
-        local_graph = self.place_members(local_graph, universe, locations, rng);
+        local_graph = self.place_members(local_graph, universe, locations, rng, blob_idx);        
         local_graph = node_utils::calculate_blob_proximity(local_graph, rng);
         local_graph = node_utils::connect_members(
             local_graph, 

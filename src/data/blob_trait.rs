@@ -114,7 +114,8 @@ pub trait Blob {
         mut local_graph: UnGraph<NodeData, EdgeData>,
         universe: &Universe, 
         locations: &mut Vec<Location>,
-        rng: &mut ChaCha8Rng
+        rng: &mut ChaCha8Rng,
+        blob_idx: usize
     ) -> UnGraph<NodeData, EdgeData>
     {
         //Find one random previous center or extension center
@@ -134,7 +135,7 @@ pub trait Blob {
             distance_tolerance: universe.blob_distance_tolerance
         });
     
-        let mut origin_data = NodeData::from(origin_pos);
+        let mut origin_data = NodeData::default_with_idx(origin_pos, blob_idx);
         origin_data.color = match local_graph.node_count() {
             0 => Color::GOLD,
             _ => Color::BLUE
@@ -153,21 +154,22 @@ pub trait Blob {
                     &local_graph, &member_pos, self.get_no_no_distance()
                 );
                 if member_clipping == false {
-                    local_graph.add_node(NodeData::from(member_pos));
+                    local_graph.add_node(NodeData::default_with_idx(member_pos, blob_idx));
                     break;
                 }   
             }
     
         }
     
-        return self.place_members(local_graph, universe, locations, rng);
+        return self.place_members(local_graph, universe, locations, rng, blob_idx);
     }
 
     fn generate_blob(
         &self,
         universe: &Universe, 
         locations: &mut Vec<Location>,
-        rng: &mut ChaCha8Rng
+        rng: &mut ChaCha8Rng,
+        blob_idx: usize
     ) -> UnGraph<NodeData, EdgeData>;
 }
 
