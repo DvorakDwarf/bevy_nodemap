@@ -9,6 +9,7 @@ use rand_chacha::ChaCha8Rng;
 use crate::data::*;
 use crate::node_utils::{get_sorted_distances, is_blob_connected};
 
+//TODO: Replace with existing .distance
 fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
     let distance = (
         (end_node.x - start_node.x).powf(2.0) + 

@@ -1,6 +1,7 @@
 use bevy::math::Vec3;
 use petgraph::graph::{NodeIndex, UnGraph};
 use rand;
+use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
@@ -45,22 +46,22 @@ fn merge_graphs(
 //Function to do all the stuff after disc_blob::generate_disc_blob
 //Make extension work on any blob type
 
-pub fn generate_graph(universe: Universe) -> UnGraph<NodeData, EdgeData> {
+pub fn generate_graph(universe: Universe, dist: WeightedIndex<i32>) -> UnGraph<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
     let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
     //Make sure blobs don't spawn too close
     let mut locations: Vec<Location> = Vec::new();
     
-    //Add voids here. A location with no nodes but a distance tolerance
-    locations.push(Location{
-        location_type: LocationType::Void(VoidType::Sphere),
-        center_pos: Vec3::ZERO,
-        distance_tolerance: 50.0
-    });
+    // //Add voids here. A location with no nodes but a distance tolerance
+    // locations.push(Location{
+    //     location_type: LocationType::Void,
+    //     center_pos: Vec3::ZERO,
+    //     distance_tolerance: 50.0
+    // });
 
     //Place blobs
     for blob_idx in 0..universe.n_blobs {
-        let selected_variant = universe.blob_variants.choose(&mut rng).unwrap();
+        let selected_variant = &universe.blob_variants[dist.sample(&mut rng)];
         let new_blob = selected_variant.generate_blob(
             &universe, &mut locations, &mut rng, blob_idx
         );

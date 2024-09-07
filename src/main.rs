@@ -9,85 +9,12 @@ mod blobs;
 mod sparse_nodes;
 mod node_utils;
 mod blob_utils;
+mod presets;
 
-use data::{GlobalState, Universe, UniverseSize};
-use blobs::{DiscBlob, SphereBlob, SphereSurfaceBlob};
-use graph_gen::generate_graph;
+use data::GlobalState;
 
 fn main() { 
-    // // Decent
-    // let disc_blob_1 = Box::new(DiscBlob {
-    //     n_nodes: 20,
-    //     n_member_candidates: 4,
-    //     fluff_requirement: 3.2,
-    //     combo_chance: 20,
-    //     no_no_distance: 5.0,
-    //     radius: 25.0,
-    //     height: 8.0,
-    //     extension_radius: 10.0,
-    // });
-
-    // let universe = Universe {
-    //     n_blobs: 10,
-    //     blob_variants: vec![disc_blob_1],
-    //     size: UniverseSize {
-    //         radius: 100.0,
-    //         height: 25.0
-    //     },
-    //     blob_distance_tolerance: 40.0,
-    //     n_blob_candidates: 3,
-    //     min_connections: 2, 
-    //     max_connections: 6,
-    //     n_sparse_nodes: 12,
-    //     sparse_distance_tolerance: 12.0,
-    //     n_sparse_connections: 3,
-    // };
-
-    let disc_blob_1 = Box::new(DiscBlob {
-        n_nodes: 20,
-        n_member_candidates: 4,
-        fluff_requirement: 3.2,
-        combo_chance: 40,
-        no_no_distance: 5.0,
-        radius: 25.0,
-        height: 8.0,
-        extension_radius: 10.0,
-    });
-    let sphere_blob_1 = Box::new(SphereBlob {
-        n_nodes: 20,
-        n_member_candidates: 4,
-        fluff_requirement: 3.2,
-        combo_chance: 40,
-        no_no_distance: 5.0,
-        radius: 25.0,
-        extension_radius: 10.0,
-    });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
-        n_nodes: 20,
-        n_member_candidates: 3,
-        fluff_requirement: 3.2,
-        combo_chance: 40,
-        no_no_distance: 7.0,
-        radius: 20.0,
-        extension_radius: 20.0,
-    });
-
-    let universe = Universe {
-        n_blobs: 10,
-        blob_variants: vec![disc_blob_1, sphere_blob_1, sphere_surface_blob_1],
-        size: UniverseSize {
-            radius: 120.0,
-            height: 20.0
-        },
-        blob_distance_tolerance: 60.0,
-        n_blob_candidates: 3,
-        min_connections: 2, 
-        max_connections: 6,
-        n_sparse_nodes: 15,
-        sparse_distance_tolerance: 12.0,
-        n_sparse_connections: 3,
-    };
-    let graph = generate_graph(universe);
+    let graph = presets::preset_4();
     let global_state = GlobalState::new(graph);
 
     App::new()

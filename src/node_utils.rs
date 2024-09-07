@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::f32::consts::PI;
+use std::f32::NAN;
 
 use petgraph::{algo, Undirected};
 use petgraph::graph::{Graph, NodeIndex, UnGraph};
@@ -267,6 +268,40 @@ pub fn rand_disc_position(
     let x = ((rng.gen::<f32>().sqrt() * radius) * theta.cos()) + origin_pos.x;
     let y = rng.gen_range(0.0..height) + origin_pos.y; 
     let z = ((rng.gen::<f32>().sqrt() * radius) * theta.sin()) + origin_pos.z;
+
+    let new_pos = Vec3::new(x, y, z);
+
+    return new_pos;
+}
+
+//MAYBE IT SHOULD BE PROBABILITY ???????
+//WHO KNOWS
+pub fn random_disc_easing_pos(
+    radius: f32,
+    height: f32,
+    origin_pos: Vec3,
+    easing: fn(f32) -> f32, 
+    time: f32,
+    rng: &mut ChaCha8Rng) -> Vec3 {
+
+    let theta: f32 = rng.gen_range(0.0..2.0*PI);
+
+    dbg!(time);
+    dbg!(easing(time));
+    let easing_coeff = easing(time);
+    // let eased_radius = radius * (1.0 - easing_coeff);
+    let eased_radius = radius * easing_coeff;
+    let eased_radius = match eased_radius.is_nan() {
+        true => 0.0,
+        false => eased_radius
+    };
+    
+
+    //Why is sqrt there ? I notice it makes it
+    //more circular and more spread apart from the center
+    let x = (eased_radius * theta.cos()) + origin_pos.x;
+    let y = rng.gen_range(0.0..height) + origin_pos.y; 
+    let z = (eased_radius * theta.sin()) + origin_pos.z;
 
     let new_pos = Vec3::new(x, y, z);
 

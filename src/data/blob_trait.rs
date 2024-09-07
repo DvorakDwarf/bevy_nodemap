@@ -1,6 +1,7 @@
 use core::fmt::Debug;
 
 use bevy::prelude::*;
+use bevy::utils::dbg;
 use petgraph::graph::UnGraph;
 use rand_chacha::ChaCha8Rng;
 use rand::prelude::SliceRandom;
@@ -9,6 +10,7 @@ use rand::Rng;
 use crate::blob_utils::is_blob_clipping;
 use crate::node_utils::is_member_clipping;
 use crate::node_utils::rand_disc_position;
+use crate::node_utils::random_disc_easing_pos;
 
 use super::BlobType;
 use super::Location;
@@ -84,11 +86,21 @@ pub trait Blob {
         } else {
             let mut origin_pos;
             loop {
+                dbg!(locations);
+                let blobs_spawned = locations.iter()
+                    .filter(|x| x.location_type == LocationType::Blob)
+                    .collect::<Vec<&Location>>()
+                    .len();
+                dbg!(blobs_spawned);
+                let time = (universe.n_blobs as f32) / blobs_spawned as f32;
+
                 //Random GLOBAL position
-                origin_pos = rand_disc_position(
+                origin_pos = random_disc_easing_pos(
                     universe.size.radius,
                     universe.size.height,
                     Vec3::new(0.0, 0.0, 0.0), 
+                    simple_easing::circ_out,
+                    time,
                     &mut rng
                 );
                 dbg!(origin_pos);
@@ -130,7 +142,7 @@ pub trait Blob {
     
         //Update locations
         locations.push(Location {
-            location_type: LocationType::Blob(BlobType::Disc),
+            location_type: LocationType::Blob,
             center_pos: origin_pos,
             distance_tolerance: universe.blob_distance_tolerance
         });

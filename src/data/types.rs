@@ -7,20 +7,26 @@ pub enum NodeType {
     Center, Member, Sparse, Extension
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BlobType {
     Disc
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VoidType {
     Sphere
 }
 
-#[derive(Debug)]
+// #[derive(Debug, PartialEq)]
+// pub enum LocationType {
+//     Blob(BlobType),
+//     Void(VoidType)
+// }
+
+#[derive(Debug, PartialEq)]
 pub enum LocationType {
-    Blob(BlobType),
-    Void(VoidType)
+    Blob,
+    Void
 }
 
 #[derive(Debug)]
