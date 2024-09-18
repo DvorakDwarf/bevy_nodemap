@@ -276,6 +276,7 @@ pub fn rand_disc_position(
 
 //MAYBE IT SHOULD BE PROBABILITY ???????
 //WHO KNOWS
+//HOW DO I USE AN EASING FUNCTION AS A PROBABLITY DIST ???
 pub fn random_disc_easing_pos(
     radius: f32,
     height: f32,
@@ -286,9 +287,7 @@ pub fn random_disc_easing_pos(
 
     let theta: f32 = rng.gen_range(0.0..2.0*PI);
 
-    dbg!(time);
-    dbg!(easing(time));
-    let easing_coeff = easing(time);
+    let easing_coeff = easing(rng.gen::<f32>());
     // let eased_radius = radius * (1.0 - easing_coeff);
     let eased_radius = radius * easing_coeff;
     let eased_radius = match eased_radius.is_nan() {
