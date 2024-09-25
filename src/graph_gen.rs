@@ -36,15 +36,8 @@ fn merge_graphs(
     }
 } 
 
-//TODO: TODO: TODO:
-//Make it so it does extension again and again until it works
-//Could either do that by having the function return option or do it inside
-//Could be a bool argument telling it's an extension
-//Maybe gen blob is called recursively
+//TODO:
 //Clean up generate_graph
-//one function for extend, one for regular
-//Function to do all the stuff after disc_blob::generate_disc_blob
-//Make extension work on any blob type
 
 pub fn generate_graph(universe: Universe, dist: WeightedIndex<i32>) -> UnGraph<NodeData, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
