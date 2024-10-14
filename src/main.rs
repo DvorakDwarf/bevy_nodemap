@@ -14,7 +14,7 @@ mod presets;
 use data::GlobalState;
 
 fn main() { 
-    let graph = presets::preset_5();
+    let graph = presets::preset_6();
     let global_state = GlobalState::new(graph);
 
     App::new()
