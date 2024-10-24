@@ -6,13 +6,13 @@ use petgraph::graph::UnGraph;
 use super::{EdgeData, NodeData};
 
 #[derive(Debug, Resource)]
-pub struct GlobalState {
+pub struct GraphState {
     pub graph: UnGraph<NodeData, EdgeData>
 }
 
-impl GlobalState {
-    pub fn new(graph: UnGraph<NodeData, EdgeData>) -> GlobalState {
-        return GlobalState {
+impl GraphState {
+    pub fn new(graph: UnGraph<NodeData, EdgeData>) -> GraphState {
+        return GraphState {
             graph
         };
     }
