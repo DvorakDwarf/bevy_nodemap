@@ -11,9 +11,28 @@ mod node_utils;
 mod blob_utils;
 mod presets;
 
-use data::GraphState;
+use data::{GraphState, NodeData, EdgeData};
+use petgraph::prelude::*;
 
-pub struct NodegraphPlugin;
+// pub struct NodegraphPlugin;
+
+pub struct NodegraphPlugin {
+    pub graph: UnGraph<NodeData, EdgeData>
+}
+
+impl NodegraphPlugin {
+    pub fn default() -> NodegraphPlugin {
+        NodegraphPlugin { 
+            graph: presets::preset_og() 
+        }
+    }
+
+   pub fn from_graph(graph: UnGraph<NodeData, EdgeData>) -> NodegraphPlugin {
+        NodegraphPlugin { 
+            graph
+        }
+    }
+}
 
 impl Plugin for NodegraphPlugin {
     fn build(&self, app: &mut App) {

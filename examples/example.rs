@@ -13,6 +13,6 @@ fn main() {
             sensitivity: 0.00012, // default: 0.00012
             speed: 36.0, // default: 12.0
         })
-        .add_plugins(NodegraphPlugin)
+        .add_plugins(NodegraphPlugin::default())
         .run();
 }
