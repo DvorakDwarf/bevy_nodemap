@@ -34,7 +34,7 @@ impl<N: NodeData> NodegraphPlugin<N> {
     }
 }
 
-impl Plugin for NodegraphPlugin {
+impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
         let graph = presets::preset_og();
         let graph_state = GraphState::new(graph);
@@ -105,7 +105,7 @@ fn spawn_graph(
     }
 }
 
-fn draw_lines<N: NodeData>(mut gizmos: Gizmos, global_state: Res<GraphState<N>>) {
+fn draw_lines<N: NodeData + 'static >(mut gizmos: Gizmos, global_state: Res<GraphState<N>>) {
     let graph = &global_state.graph;
 
     //TODO:

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, usize};
+use std::{collections::HashMap, fmt::Debug, usize};
 use petgraph::graph::NodeIndex;
 use bevy::prelude::*;
 
@@ -15,7 +15,7 @@ pub struct GraphData {
     pub outer_distances: HashMap<NodeIndex, f32>
 }
 
-pub trait NodeData {
+pub trait NodeData : Send + Sync {
     fn get_graph_data(&self) -> GraphData;
     fn get_vec(&self) -> Vec3 {
         return self.get_graph_data().pos;
@@ -25,4 +25,15 @@ pub trait NodeData {
 
 // impl Clone for dyn NodeData {
 //     fn clone(&self) -> Self { todo!() }
+// }
+
+impl Clone for Box<dyn NodeData> {
+    fn clone(&self) -> Self { todo!() }
+
+}
+
+// impl Debug for dyn NodeData {
+//     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+//         write!(f, "{:?}", self)
+//     }
 // }

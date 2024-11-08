@@ -233,11 +233,11 @@ pub fn connect_members<N: NodeData>(
     return graph;
 }
 
-fn get_positons<N: NodeData> (graph: &UnGraph<N, EdgeData>) -> Vec<Vec3> {
+fn get_positions<N: NodeData> (graph: &UnGraph<N, EdgeData>) -> Vec<Vec3> {
     //Sort based on distance, ascending
     let positions_list: Vec<Vec3> = graph
         .node_weights()
-        .map(|x| Vec3::new(x.x, x.y, x.z))
+        .map(|x| x.get_graph_data().pos)
         .collect();
 
     return positions_list;
@@ -249,7 +249,7 @@ pub fn is_member_clipping<N: NodeData> (
     member_pos: &Vec3,
     distance_tolerance: f32) -> bool 
 {
-    let positions = get_positons(graph);
+    let positions = get_positions(graph);
     for position in positions {
         if member_pos.distance(position) < distance_tolerance {
             return true;

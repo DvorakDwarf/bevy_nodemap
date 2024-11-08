@@ -12,4 +12,5 @@ pub use types::*;
 pub use graph_state::GraphState;
 pub use universe::*;
 pub use blob_trait::Blob;
+pub use blob_trait::BlobWrapper;
 pub use node_data_trait::NodeData;

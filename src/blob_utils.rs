@@ -172,7 +172,7 @@ fn pick_blob_couples<N: NodeData> (
 pub fn connect_blobs<N: NodeData + Clone, B: Blob> (
     mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
-    universe: &Universe<B>) -> UnGraph<N, EdgeData>
+    universe: &Universe) -> UnGraph<N, EdgeData>
 {
     //Make sure each one is reached at least once in a full run
     //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED

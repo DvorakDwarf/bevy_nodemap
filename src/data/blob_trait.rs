@@ -7,6 +7,9 @@ use rand::prelude::SliceRandom;
 use rand::Rng;
 
 use crate::blob_utils::is_blob_clipping;
+use crate::blobs::DiscBlob;
+use crate::blobs::SphereBlob;
+use crate::blobs::SphereSurfaceBlob;
 use crate::node_utils::is_member_clipping;
 use crate::node_utils::random_disc_easing_pos;
 
@@ -15,6 +18,14 @@ use super::LocationType;
 use super::NodeType;
 use super::Universe;
 use super::{EdgeData, NodeData};
+
+//Wrapper because without it the trait is not object safe and can't be used
+#[derive(Debug)]
+pub enum BlobWrapper {
+    Disc(DiscBlob),
+    Sphere(SphereBlob),
+    Surface(SphereSurfaceBlob)
+}
 
 //I don't know if this is good or bad practice
 //All the getter method stuff is unnerving
@@ -36,12 +47,12 @@ pub trait Blob {
         rng: &mut ChaCha8Rng
     ) -> Vec3;
 
-    fn get_start_pos<N: NodeData, B: Blob> (  
+    fn get_start_pos<N: NodeData> (  
         &self,  
         local_graph: &UnGraph<N, EdgeData>,
         locations: &Vec<Location>,
         mut rng: &mut ChaCha8Rng,
-        universe: &Universe<B>
+        universe: &Universe
     ) -> Option<Vec3>
     {
         if local_graph.node_count() > 0 {
@@ -118,10 +129,10 @@ pub trait Blob {
     }
 
     //RECURSIVE
-    fn place_members<N: NodeData, B: Blob> (
+    fn place_members<N: NodeData> (
         &self,
         mut local_graph: UnGraph<N, EdgeData>,
-        universe: &Universe<B>, 
+        universe: &Universe, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
@@ -173,9 +184,9 @@ pub trait Blob {
         return self.place_members(local_graph, universe, locations, rng, blob_idx);
     }
 
-    fn generate_blob<N: NodeData, B: Blob>(
+    fn generate_blob<N: NodeData>(
         &self,
-        universe: &Universe<B>, 
+        universe: &Universe, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
