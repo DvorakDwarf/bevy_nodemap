@@ -9,16 +9,16 @@ use crate::blob_utils::{calculate_outer_distances, connect_blobs};
 use crate::data::*;
 use crate::sparse_nodes::add_sparse_nodes;
 
-fn merge_graphs(
-    graph1: &mut UnGraph<NodeData, EdgeData>, 
-    graph2: UnGraph<NodeData, EdgeData>) {
+fn merge_graphs<N: NodeData + Clone>(
+    graph1: &mut UnGraph<N, EdgeData>, 
+    graph2: UnGraph<N, EdgeData>) {
 
     let index_offset = graph1.node_count();
 
     for node in graph2.node_weights() {
         let mut node = node.clone();
 
-        node.neighbor_distances = node.neighbor_distances.iter().map(|x| {
+        node.get_graph_data().neighbor_distances = node.get_graph_data().neighbor_distances.iter().map(|x| {
             let new_idx = x.0.index() + index_offset;
             return (NodeIndex::new(new_idx), *x.1);
         }).collect();

@@ -52,9 +52,9 @@ impl Blob for DiscBlob {
         );
     }
 
-    fn generate_blob<N: NodeData + Clone, B: Blob>(
+    fn generate_blob<N: NodeData + Clone>(
         &self,
-        universe: &Universe<B>, 
+        universe: &Universe, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
