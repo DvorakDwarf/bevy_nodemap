@@ -38,7 +38,7 @@ fn merge_graphs(
 
 //TODO:
 //Clean up generate_graph
-pub fn generate_graph<N: NodeData + Clone, B: Blob> 
+pub fn generate_graph<N: NodeData + Clone> 
     (universe: Universe, dist: WeightedIndex<i32>) 
     -> UnGraph<N, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);

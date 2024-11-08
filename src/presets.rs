@@ -7,7 +7,7 @@ use crate::graph_gen::generate_graph;
 
 pub fn preset_og<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
     // Decent
-    let disc_blob_1 = DiscBlob {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -16,7 +16,7 @@ pub fn preset_og<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
         radius: 25.0,
         height: 8.0,
         extension_radius: 10.0,
-    };
+    });
 
     let universe = Universe {
         n_blobs: 10,
@@ -42,8 +42,8 @@ pub fn preset_og<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
     return graph;
 }
 
-pub fn preset_1<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
-    let disc_blob_1 = Box::new(DiscBlob {
+pub fn preset_1<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -53,7 +53,7 @@ pub fn preset_1<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         height: 8.0,
         extension_radius: 10.0,
     });
-    let sphere_blob_1 = Box::new(SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -62,7 +62,7 @@ pub fn preset_1<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         extension_radius: 10.0,
     });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -96,8 +96,8 @@ pub fn preset_1<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
     return graph;
 }
 
-pub fn preset_2<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
-    let disc_blob_1 = Box::new(DiscBlob {
+pub fn preset_2<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -107,7 +107,7 @@ pub fn preset_2<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         height: 8.0,
         extension_radius: 15.0,
     });
-    let sphere_blob_1 = Box::new(SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -116,7 +116,7 @@ pub fn preset_2<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         extension_radius: 10.0,
     });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -150,8 +150,8 @@ pub fn preset_2<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
     return graph;
 }
 
-pub fn preset_3<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
-    let disc_blob_1 = Box::new(DiscBlob {
+pub fn preset_3<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 16,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -161,7 +161,7 @@ pub fn preset_3<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         height: 8.0,
         extension_radius: 15.0,
     });
-    let sphere_blob_1 = Box::new(SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -170,7 +170,7 @@ pub fn preset_3<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         extension_radius: 10.0,
     });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -205,8 +205,8 @@ pub fn preset_3<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
 }
 
 
-pub fn preset_4<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
-    let disc_blob_1 = Box::new(DiscBlob {
+pub fn preset_4<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 16,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -216,7 +216,7 @@ pub fn preset_4<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         height: 8.0,
         extension_radius: 15.0,
     });
-    let sphere_blob_1 = Box::new(SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -225,7 +225,7 @@ pub fn preset_4<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         extension_radius: 10.0,
     });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -260,8 +260,8 @@ pub fn preset_4<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
 }
 
 //Big one
-pub fn preset_5<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
-    let disc_blob_1 = Box::new(DiscBlob {
+pub fn preset_5<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
+    let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 16,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -271,7 +271,7 @@ pub fn preset_5<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         height: 8.0,
         extension_radius: 15.0,
     });
-    let sphere_blob_1 = Box::new(SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -280,7 +280,7 @@ pub fn preset_5<N: NodeData + Clone>() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         extension_radius: 10.0,
     });
-    let sphere_surface_blob_1 = Box::new(SphereSurfaceBlob {
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -326,7 +326,7 @@ pub fn preset_6<N: NodeData + Clone, B: Blob>() -> UnGraph<N, EdgeData> {
         height: 8.0,
         extension_radius: 15.0,
     });
-    let sphere_blob_1 = SphereBlob {
+    let sphere_blob_1 = BlobWrapper::Sphere(SphereBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -334,8 +334,8 @@ pub fn preset_6<N: NodeData + Clone, B: Blob>() -> UnGraph<N, EdgeData> {
         no_no_distance: 5.0,
         radius: 25.0,
         extension_radius: 10.0,
-    };
-    let sphere_surface_blob_1 = SphereSurfaceBlob {
+    });
+    let sphere_surface_blob_1 = BlobWrapper::Surface(SphereSurfaceBlob {
         n_nodes: 20,
         n_member_candidates: 3,
         fluff_requirement: 3.2,
@@ -343,7 +343,7 @@ pub fn preset_6<N: NodeData + Clone, B: Blob>() -> UnGraph<N, EdgeData> {
         no_no_distance: 7.0,
         radius: 20.0,
         extension_radius: 20.0,
-    };
+    });
 
     let universe = Universe {
         n_blobs: 30,
