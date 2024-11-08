@@ -1,6 +1,3 @@
-//TODO:
-//PUT THIS IN A MODULE WITH OTHER BLOB TYPES
-
 use petgraph::graph::UnGraph;
 use rand_chacha::ChaCha8Rng;
 use bevy::prelude::*;
@@ -18,8 +15,7 @@ pub struct DiscBlob {
     pub n_member_candidates: usize,
     pub fluff_requirement: f32,
     pub combo_chance: usize,
-    pub no_no_distance: f32,
-
+    pub no_no_distance: f32
 }
 
 impl Blob for DiscBlob {

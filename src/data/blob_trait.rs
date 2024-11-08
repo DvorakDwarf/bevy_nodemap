@@ -1,7 +1,6 @@
 use core::fmt::Debug;
 
 use bevy::prelude::*;
-use bevy::utils::dbg;
 use petgraph::graph::UnGraph;
 use rand_chacha::ChaCha8Rng;
 use rand::prelude::SliceRandom;
@@ -9,10 +8,8 @@ use rand::Rng;
 
 use crate::blob_utils::is_blob_clipping;
 use crate::node_utils::is_member_clipping;
-use crate::node_utils::rand_disc_position;
 use crate::node_utils::random_disc_easing_pos;
 
-use super::BlobType;
 use super::Location;
 use super::LocationType;
 use super::NodeType;
