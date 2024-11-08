@@ -5,9 +5,9 @@ use crate::data::{EdgeData, NodeData, Universe, UniverseSize};
 use crate::blobs::{DiscBlob, SphereBlob, SphereSurfaceBlob};
 use crate::graph_gen::generate_graph;
 
-pub fn preset_og() -> UnGraph<NodeData, EdgeData> {
+pub fn preset_og<N: NodeData>() -> UnGraph<N, EdgeData> {
     // Decent
-    let disc_blob_1 = Box::new(DiscBlob {
+    let disc_blob_1 = DiscBlob {
         n_nodes: 20,
         n_member_candidates: 4,
         fluff_requirement: 3.2,
@@ -16,7 +16,7 @@ pub fn preset_og() -> UnGraph<NodeData, EdgeData> {
         radius: 25.0,
         height: 8.0,
         extension_radius: 10.0,
-    });
+    };
 
     let universe = Universe {
         n_blobs: 10,

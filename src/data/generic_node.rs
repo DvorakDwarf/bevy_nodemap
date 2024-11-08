@@ -12,8 +12,12 @@ pub struct GenericNode {
     pub graph_data: GraphData
 }
 
-impl GenericNode {    
-    pub fn default_with_idx(vec: Vec3, blob_idx: usize) -> GenericNode {
+//CLONE !!!
+impl NodeData for GenericNode {
+    fn get_graph_data(&self) -> GraphData {
+        return self.graph_data.clone();
+    }
+    fn default_with_idx(vec: Vec3, blob_idx: usize) -> GenericNode {
         // let n_connections = thread_rng().gen_range(2..6);
         // dbg!(n_connections);
 
@@ -28,17 +32,6 @@ impl GenericNode {
                 outer_distances: HashMap::new()
             }
         }
-    }
-
-    pub fn get_vec(&self) -> Vec3 {
-        return Vec3::new(self.x, self.y, self.z)
-    }
-}
-
-//CLONE !!!
-impl NodeData for GenericNode {
-    fn get_graph_data(&self) -> GraphData {
-        return self.graph_data.clone();
     }
 }
 

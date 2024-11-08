@@ -11,8 +11,8 @@ use bevy::prelude::*;
 
 use crate::data::{EdgeData, NodeData};
 
-pub fn is_blob_connected(
-    graph: &UnGraph<NodeData, EdgeData>) -> bool 
+pub fn is_blob_connected<N: NodeData>(
+    graph: &UnGraph<N, EdgeData>) -> bool 
 {
     let mut counter = 0;
     let mut connected = true;
@@ -43,9 +43,9 @@ pub fn is_blob_connected(
 }
 
 
-pub fn calculate_blob_proximity(
-    mut graph: UnGraph<NodeData, EdgeData>, 
-    rng: &mut ChaCha8Rng) -> UnGraph<NodeData, EdgeData> 
+pub fn calculate_blob_proximity<N: NodeData + Clone> (
+    mut graph: UnGraph<N, EdgeData>, 
+    rng: &mut ChaCha8Rng) -> UnGraph<N, EdgeData> 
 {
     //Borrow checked fighting
     let immutable_graph = graph.clone();
@@ -60,13 +60,17 @@ pub fn calculate_blob_proximity(
 
             let end_node = immutable_graph.node_weight(end_idx).unwrap();
 
+            //TODO:
+            //REPLACE WITH .distance
+            let start_pos = start_node.get_graph_data().pos;
+            let end_pos = end_node.get_graph_data().pos;
             let distance = (
-                (end_node.x - start_node.x).powf(2.0) + 
-                (end_node.y - start_node.y).powf(2.0) +
-                (end_node.z - start_node.z).powf(2.0)
+                (end_pos.x - start_pos.x).powf(2.0) + 
+                (end_pos.y - start_pos.y).powf(2.0) +
+                (end_pos.z - start_pos.z).powf(2.0)
             ).sqrt();
             
-            start_node.neighbor_distances.insert(end_idx, distance);
+            start_node.get_graph_data().neighbor_distances.insert(end_idx, distance);
         }
     }
 
@@ -85,7 +89,7 @@ pub fn get_sorted_distances(map: &HashMap<NodeIndex, f32>) -> Vec<(NodeIndex, f3
     return distances_list;
 }
 
-fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
+fn average_connections<N: NodeData>(graph: &UnGraph<N, EdgeData>) -> f32 {
     let n_nodes = graph.node_count() as f32;
 
     let total_connections: Vec<usize> = graph
@@ -98,12 +102,12 @@ fn average_connections(graph: &UnGraph<NodeData, EdgeData>) -> f32 {
     return average;
 }
 
-pub fn get_candidates(rng: &mut ChaCha8Rng, start_node: NodeData, n_member_candidates: usize) 
+pub fn get_candidates<N: NodeData> (rng: &mut ChaCha8Rng, start_node: N, n_member_candidates: usize) 
     -> Vec<(NodeIndex, f32)>
 {
     //Same idea as with node_order
     //Make sure it's sorted to get the closest nodes
-    let candidates = &start_node.neighbor_distances;
+    let candidates = &start_node.get_graph_data().neighbor_distances;
     let candidates = &mut get_sorted_distances(candidates)[0..n_member_candidates];
     candidates.shuffle(rng);
     let candidates = candidates.to_vec();
@@ -112,11 +116,11 @@ pub fn get_candidates(rng: &mut ChaCha8Rng, start_node: NodeData, n_member_candi
 }
 
 //The skeleton itself is rather boring, add more connections for fun
-fn add_blob_fluff(
-    mut graph: UnGraph<NodeData, EdgeData>, 
+fn add_blob_fluff<N: NodeData> (
+    mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
     n_member_candidates: usize,
-    fluff_requirement: f32) -> UnGraph<NodeData, EdgeData> 
+    fluff_requirement: f32) -> UnGraph<N, EdgeData> 
 {
     let mut fluff = average_connections(&graph);
 
@@ -126,7 +130,7 @@ fn add_blob_fluff(
 
             //Try next one if node full
             let n_edges = graph.edges(start_idx).count();
-            if n_edges > start_node.n_connections {
+            if n_edges > start_node.get_graph_data().n_connections {
                 // dbg!("Triggered 1");
                 continue;
             }
@@ -136,7 +140,7 @@ fn add_blob_fluff(
                 //Maybe it should mark the fact it tried one candidate already
                 let candidate_node = graph.node_weight(candidate_idx).unwrap();
                 let n_edges = graph.edges(candidate_idx).count();
-                if n_edges > candidate_node.n_connections {
+                if n_edges > candidate_node.get_graph_data().n_connections {
                     // dbg!("Triggered 2");
                     continue;
                 }
@@ -168,11 +172,11 @@ fn add_blob_fluff(
     return graph;
 }
 
-pub fn connect_members(
-    mut graph: UnGraph<NodeData, EdgeData>, 
+pub fn connect_members<N: NodeData>(
+    mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
     n_member_candidates: usize,
-    fluff_requirement: f32) -> UnGraph<NodeData, EdgeData> 
+    fluff_requirement: f32) -> UnGraph<N, EdgeData> 
 {
     //Does repeat work. In fact, a lot of this code does
     let mut stop = false;
@@ -186,7 +190,7 @@ pub fn connect_members(
             let start_node = graph.node_weight(start_idx).unwrap().clone();
             let n_edges = graph.edges(start_idx).count();
             // dbg!(&n_edges);
-            if n_edges > start_node.n_connections {
+            if n_edges > start_node.get_graph_data().n_connections {
                 // dbg!("Triggered 1");
                 continue;
             }
@@ -197,7 +201,7 @@ pub fn connect_members(
                 //Maybe it should mark the fact it tried one candidate already
                 let candidate_node = graph.node_weight(candidate_idx).unwrap();
                 let n_edges = graph.edges(candidate_idx).count();
-                if n_edges > candidate_node.n_connections {
+                if n_edges > candidate_node.get_graph_data().n_connections {
                     // dbg!("Triggered 2");
                     continue;
                 }
@@ -229,7 +233,7 @@ pub fn connect_members(
     return graph;
 }
 
-fn get_positons(graph: &UnGraph<NodeData, EdgeData>) -> Vec<Vec3> {
+fn get_positons<N: NodeData> (graph: &UnGraph<N, EdgeData>) -> Vec<Vec3> {
     //Sort based on distance, ascending
     let positions_list: Vec<Vec3> = graph
         .node_weights()
@@ -240,8 +244,8 @@ fn get_positons(graph: &UnGraph<NodeData, EdgeData>) -> Vec<Vec3> {
 }
 
 
-pub fn is_member_clipping(
-    graph: &UnGraph<NodeData, EdgeData>, 
+pub fn is_member_clipping<N: NodeData> (
+    graph: &UnGraph<N, EdgeData>, 
     member_pos: &Vec3,
     distance_tolerance: f32) -> bool 
 {

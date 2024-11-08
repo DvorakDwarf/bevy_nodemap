@@ -6,11 +6,11 @@ use super::Blob;
 //Which are picked randomly or weighted and then randomly picked
 //There will also be some amount of nodes allocated per blob in a range
 #[derive(Debug)]
-pub struct Universe {
+pub struct Universe<B: Blob> {
     pub n_blobs: usize,
     //TODO: Not confident what this entails
     //Each blob variant is a different struct with trait Blob
-    pub blob_variants: Vec<Box<dyn Blob>>, 
+    pub blob_variants: Vec<B>, 
     pub size: UniverseSize,
     pub blob_distance_tolerance: f32,
     pub n_blob_candidates: usize,

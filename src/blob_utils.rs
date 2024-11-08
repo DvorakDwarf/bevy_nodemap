@@ -10,19 +10,21 @@ use crate::data::*;
 use crate::node_utils::{get_sorted_distances, is_blob_connected};
 
 //TODO: Replace with existing .distance
-fn calculate_3d_distance(start_node: &NodeData, end_node: &NodeData) -> f32{
+fn calculate_3d_distance<N: NodeData>(start_node: &N, end_node: &N) -> f32{
+    let start_pos = start_node.get_graph_data().pos;
+    let end_pos = end_node.get_graph_data().pos;
     let distance = (
-        (end_node.x - start_node.x).powf(2.0) + 
-        (end_node.y - start_node.y).powf(2.0) +
-        (end_node.z - start_node.z).powf(2.0)
+        (end_pos.x - start_pos.x).powf(2.0) + 
+        (end_pos.y - start_pos.y).powf(2.0) +
+        (end_pos.z - start_pos.z).powf(2.0)
     ).sqrt();
 
     return distance;
 }
 
-pub fn calculate_outer_distances(
-    mut graph: UnGraph<NodeData, EdgeData>
-    ) -> UnGraph<NodeData, EdgeData>
+pub fn calculate_outer_distances<N: NodeData + Clone>(
+    mut graph: UnGraph<N, EdgeData>
+    ) -> UnGraph<N, EdgeData>
 {
 
     //Borrow checker fighting
@@ -34,7 +36,7 @@ pub fn calculate_outer_distances(
         for end_idx in immutable_graph.node_indices() {
             if start_idx == end_idx {
                 continue;
-            } else if start_node.neighbor_distances.contains_key(&end_idx) {
+            } else if start_node.get_graph_data().neighbor_distances.contains_key(&end_idx) {
                 continue;
             }
 
@@ -42,43 +44,43 @@ pub fn calculate_outer_distances(
 
             let distance = calculate_3d_distance(start_node, end_node);
             
-            start_node.outer_distances.insert(end_idx, distance);
+            start_node.get_graph_data().outer_distances.insert(end_idx, distance);
         }
     }
 
     return graph;
 }
 
-fn get_centers(
-    graph: &UnGraph<NodeData, EdgeData>
-) -> Vec<(NodeIndex, &NodeData)> 
+fn get_centers<N: NodeData> (
+    graph: &UnGraph<N, EdgeData>
+) -> Vec<(NodeIndex, &N)> 
 {
     let centres = graph.node_indices()
         .map(|idx| (idx, graph.node_weight(idx).unwrap()))
-        .filter(|x| x.1.role == NodeType::Center)
+        .filter(|x| x.1.get_graph_data().role == NodeType::Center)
         .collect();
 
     return centres;
 }
 
-fn connect_blob(
-    mut graph: UnGraph<NodeData, EdgeData>, 
+fn connect_blob<N: NodeData> (
+    mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
     n_interblob_edges: usize,
     idx_1: NodeIndex, 
-    idx_2: NodeIndex) -> UnGraph<NodeData, EdgeData> 
+    idx_2: NodeIndex) -> UnGraph<N, EdgeData> 
 {
     //Kinda double work but idc, cleaner arguments
     let center_1 = graph.node_weight(idx_1).unwrap();
     let center_2 = graph.node_weight(idx_2).unwrap();
 
     //All nodes belonging to a blob
-    let members_1: Vec<NodeIndex> = center_1.neighbor_distances
+    let members_1: Vec<NodeIndex> = center_1.get_graph_data().neighbor_distances
         .iter()
         .map(|x| *x.0)
         .collect();
 
-    let members_2: Vec<NodeIndex> = center_2.neighbor_distances
+    let members_2: Vec<NodeIndex> = center_2.get_graph_data().neighbor_distances
         .iter()
         .map(|x| *x.0)
         .collect();
@@ -112,12 +114,12 @@ fn connect_blob(
     return graph; 
 }
 
-fn pick_blob_couples(
-    mut graph: UnGraph<NodeData, EdgeData>,
-    blob_order: &Vec<(NodeIndex, NodeData)>,
+fn pick_blob_couples<N: NodeData> (
+    mut graph: UnGraph<N, EdgeData>,
+    blob_order: &Vec<(NodeIndex, N)>,
     centre_indices: &Vec<NodeIndex>,
     rng: &mut ChaCha8Rng,
-    n_blob_candidates: usize) -> (UnGraph<NodeData, EdgeData>, bool) 
+    n_blob_candidates: usize) -> (UnGraph<N, EdgeData>, bool) 
 {
     for (start_idx, centre_node) in blob_order {
         println!("Connecting blob {:?}", start_idx);
@@ -125,7 +127,7 @@ fn pick_blob_couples(
         //Same idea as with blob_order
         //Make sure it's sorted to get the closest nodes
         //Remove any non-center nodes
-        let candidates = &centre_node.outer_distances;
+        let candidates = &centre_node.get_graph_data().outer_distances;
         let candidates = get_sorted_distances(&candidates);
         let mut candidates: Vec<&(NodeIndex, f32)> = candidates
             .iter()
@@ -167,14 +169,14 @@ fn pick_blob_couples(
     return (graph, false);
 }
 
-pub fn connect_blobs(
-    mut graph: UnGraph<NodeData, EdgeData>, 
+pub fn connect_blobs<N: NodeData + Clone, B: Blob> (
+    mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
-    universe: &Universe) -> UnGraph<NodeData, EdgeData>
+    universe: &Universe<B>) -> UnGraph<N, EdgeData>
 {
     //Make sure each one is reached at least once in a full run
     //DANGEROUS: THE NODEDATA MIGHT BECOME OUTDATED
-    let mut blob_order: Vec<(NodeIndex, NodeData)> = get_centers(&graph)
+    let mut blob_order: Vec<(NodeIndex, N)> = get_centers(&graph)
         .iter()
         .map(|x| (x.0, x.1.clone()))
         .collect();

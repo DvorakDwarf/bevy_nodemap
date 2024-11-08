@@ -38,9 +38,11 @@ fn merge_graphs(
 
 //TODO:
 //Clean up generate_graph
-pub fn generate_graph(universe: Universe, dist: WeightedIndex<i32>) -> UnGraph<NodeData, EdgeData> {
+pub fn generate_graph<N: NodeData + Clone, B: Blob> 
+    (universe: Universe<B>, dist: WeightedIndex<i32>) 
+    -> UnGraph<N, EdgeData> {
     let mut rng = ChaCha8Rng::seed_from_u64(1337);
-    let mut graph = UnGraph::<NodeData, EdgeData>::new_undirected();
+    let mut graph = UnGraph::<N, EdgeData>::new_undirected();
     //Make sure blobs don't spawn too close
     let mut locations: Vec<Location> = Vec::new();
     

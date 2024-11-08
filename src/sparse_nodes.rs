@@ -6,11 +6,11 @@ use rand_chacha::ChaCha8Rng;
 use crate::data::*;
 use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_disc_position};
 
-fn get_sparse_pos(
+fn get_sparse_pos<N: NodeData, B: Blob>(
     //Mut ref because previous function uses mut ref
-    graph: &mut UnGraph<NodeData, EdgeData>,
+    graph: &mut UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe
+    universe: &Universe<B>
 ) -> Vec3 {
     let mut sparse_pos;
     loop {
@@ -34,41 +34,42 @@ fn get_sparse_pos(
     return sparse_pos;
 }
 
-fn place_sparse_node(
-    graph: &mut UnGraph<NodeData, EdgeData>,
+fn place_sparse_node<N: NodeData, B: Blob>(
+    graph: &mut UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe
+    universe: &Universe<B>
 ) -> bool {
     let sparse_pos = get_sparse_pos(graph, rng, universe);
 
-    let mut sparse_data = NodeData::default_with_idx(sparse_pos, usize::MAX);
-    sparse_data.color = Color::PURPLE;
-    sparse_data.role = NodeType::Sparse;
+    let mut sparse_data: N = NodeData::default_with_idx(sparse_pos, usize::MAX);
+    sparse_data.get_graph_data().color = Color::PURPLE;
+    sparse_data.get_graph_data().role = NodeType::Sparse;
     
 
     for end_idx in graph.node_indices() {
         let end_node = graph.node_weight(end_idx).unwrap();
-        let end_pos = Vec3::new(end_node.x, end_node.y, end_node.z);
+        let end_pos = end_node.get_graph_data().pos;
 
         let distance = sparse_pos.distance(end_pos);
         
-        sparse_data.neighbor_distances.insert(end_idx, distance);
+        sparse_data.get_graph_data().neighbor_distances.insert(end_idx, distance);
     }
 
     let mut unique_connections: Vec<usize> = Vec::new();
-    let candidates = &sparse_data.neighbor_distances;
+    let candidates = &sparse_data.get_graph_data().neighbor_distances;
     let candidates = &mut get_sorted_distances(candidates);
     let candidates: Vec<(NodeIndex, f32)> = candidates[0..universe.n_sparse_connections]
         .iter()
         .map(|x| *x)
         .filter(|x| {
             let candidate_node = graph.node_weight(x.0).unwrap();
-            dbg!(candidate_node.blob_idx);
-            if !(unique_connections.contains(&candidate_node.blob_idx)) {
-                unique_connections.push(candidate_node.blob_idx);
+            let candidate_idx = candidate_node.get_graph_data().blob_idx;
+            dbg!(candidate_idx);
+            if !(unique_connections.contains(&candidate_idx)) {
+                unique_connections.push(candidate_idx);
                 
             }
-            return graph.edges(x.0).count() <= candidate_node.n_connections;
+            return graph.edges(x.0).count() <= candidate_node.get_graph_data().n_connections;
         })
         .collect();
 
@@ -91,11 +92,11 @@ fn place_sparse_node(
     return true;
 }
 
-pub fn add_sparse_nodes(
-    mut graph: UnGraph<NodeData, EdgeData>,
+pub fn add_sparse_nodes<N: NodeData, B: Blob> (
+    mut graph: UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe
-) -> UnGraph<NodeData, EdgeData> 
+    universe: &Universe<B>
+) -> UnGraph<N, EdgeData> 
 {
     //Used to be passed to get_sparse_pos
     // let origin_pos = Vec3::ZERO;

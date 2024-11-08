@@ -17,4 +17,12 @@ pub struct GraphData {
 
 pub trait NodeData {
     fn get_graph_data(&self) -> GraphData;
+    fn get_vec(&self) -> Vec3 {
+        return self.get_graph_data().pos;
+    }
+    fn default_with_idx(vec: Vec3, blob_idx: usize) -> Self;
 }
+
+// impl Clone for dyn NodeData {
+//     fn clone(&self) -> Self { todo!() }
+// }

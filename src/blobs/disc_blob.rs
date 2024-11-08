@@ -52,16 +52,16 @@ impl Blob for DiscBlob {
         );
     }
 
-    fn generate_blob(
+    fn generate_blob<N: NodeData + Clone, B: Blob>(
         &self,
-        universe: &Universe, 
+        universe: &Universe<B>, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
-    ) -> UnGraph<NodeData, EdgeData>
+    ) -> UnGraph<N, EdgeData>
     {
         dbg!("Start");
-        let mut local_graph = UnGraph::<NodeData, EdgeData>::new_undirected();
+        let mut local_graph = UnGraph::<N, EdgeData>::new_undirected();
         
         local_graph = self.place_members(local_graph, universe, locations, rng, blob_idx);
         local_graph = node_utils::calculate_blob_proximity(local_graph, rng);

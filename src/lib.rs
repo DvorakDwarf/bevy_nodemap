@@ -16,18 +16,18 @@ use petgraph::prelude::*;
 
 // pub struct NodegraphPlugin;
 
-pub struct NodegraphPlugin {
-    pub graph: UnGraph<NodeData, EdgeData>
+pub struct NodegraphPlugin<N: NodeData> {
+    pub graph: UnGraph<N, EdgeData>
 }
 
-impl NodegraphPlugin {
-    pub fn default() -> NodegraphPlugin {
+impl<N: NodeData> NodegraphPlugin<N> {
+    pub fn default() -> NodegraphPlugin<N> {
         NodegraphPlugin { 
             graph: presets::preset_og() 
         }
     }
 
-   pub fn from_graph(graph: UnGraph<NodeData, EdgeData>) -> NodegraphPlugin {
+   pub fn from_graph(graph: UnGraph<N, EdgeData>) -> NodegraphPlugin<N> {
         NodegraphPlugin { 
             graph
         }
@@ -105,7 +105,7 @@ fn spawn_graph(
     }
 }
 
-fn draw_lines(mut gizmos: Gizmos, global_state: Res<GraphState>) {
+fn draw_lines<N: NodeData>(mut gizmos: Gizmos, global_state: Res<GraphState<N>>) {
     let graph = &global_state.graph;
 
     //TODO:

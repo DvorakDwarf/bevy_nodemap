@@ -36,12 +36,12 @@ pub trait Blob {
         rng: &mut ChaCha8Rng
     ) -> Vec3;
 
-    fn get_start_pos(  
+    fn get_start_pos<N: NodeData, B: Blob> (  
         &self,  
-        local_graph: &UnGraph<NodeData, EdgeData>,
+        local_graph: &UnGraph<N, EdgeData>,
         locations: &Vec<Location>,
         mut rng: &mut ChaCha8Rng,
-        universe: &Universe
+        universe: &Universe<B>
     ) -> Option<Vec3>
     {
         if local_graph.node_count() > 0 {
@@ -54,9 +54,9 @@ pub trait Blob {
             //Use it to grow another part of the blob
             let origin_pos = local_graph
                 .node_weights()
-                .filter(|x| (x.role == NodeType::Center) || (x.role == NodeType::Extension))
+                .filter(|x| (x.get_graph_data().role == NodeType::Center) || (x.get_graph_data().role == NodeType::Extension))
                 .map(|x| x.clone())
-                .collect::<Vec<NodeData>>()
+                .collect::<Vec<&N>>()
                 .choose(rng)
                 .unwrap()
                 .get_vec();
@@ -118,14 +118,14 @@ pub trait Blob {
     }
 
     //RECURSIVE
-    fn place_members(
+    fn place_members<N: NodeData, B: Blob> (
         &self,
-        mut local_graph: UnGraph<NodeData, EdgeData>,
-        universe: &Universe, 
+        mut local_graph: UnGraph<N, EdgeData>,
+        universe: &Universe<B>, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
-    ) -> UnGraph<NodeData, EdgeData>
+    ) -> UnGraph<N, EdgeData>
     {
         //Find one random previous center or extension center
         //Use it to grow another part of the blob
@@ -144,12 +144,12 @@ pub trait Blob {
             distance_tolerance: universe.blob_distance_tolerance
         });
     
-        let mut origin_data = NodeData::default_with_idx(origin_pos, blob_idx);
-        origin_data.color = match local_graph.node_count() {
+        let mut origin_data = N::default_with_idx(origin_pos, blob_idx);
+        origin_data.get_graph_data().color = match local_graph.node_count() {
             0 => Color::GOLD,
             _ => Color::BLUE
         };
-        origin_data.role = match local_graph.node_count() {
+        origin_data.get_graph_data().role = match local_graph.node_count() {
             0 => NodeType::Center,
             _ => NodeType::Extension
         };
@@ -173,17 +173,17 @@ pub trait Blob {
         return self.place_members(local_graph, universe, locations, rng, blob_idx);
     }
 
-    fn generate_blob(
+    fn generate_blob<N: NodeData, B: Blob>(
         &self,
-        universe: &Universe, 
+        universe: &Universe<B>, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
-    ) -> UnGraph<NodeData, EdgeData>;
+    ) -> UnGraph<N, EdgeData>;
 }
 
-impl Debug for dyn Blob {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+// impl Debug for dyn Blob {
+//     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+//         write!(f, "{:?}", self)
+//     }
+// }
