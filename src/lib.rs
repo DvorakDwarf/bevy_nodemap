@@ -11,7 +11,7 @@ mod node_utils;
 mod blob_utils;
 mod presets;
 
-pub use data::{GraphState, NodeData, EdgeData, GenericNode};
+pub use data::{GraphState, NodeData, EdgeData, GenericNode, GraphData, NodeType};
 use petgraph::prelude::*;
 
 pub struct NodegraphPlugin<N: NodeData> {
