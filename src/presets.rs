@@ -37,7 +37,7 @@ pub fn preset_og<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
     let weights = [1];
     let dist = WeightedIndex::new(&weights).unwrap();
 
-    let graph = generate_graph(universe, dist);
+    let graph = generate_graph::<N>(universe, dist);
 
     return graph;
 }
@@ -315,7 +315,7 @@ pub fn preset_5<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
 }
 
 //Low number of big extending blobs
-pub fn preset_6<N: NodeData + Clone, B: Blob>() -> UnGraph<N, EdgeData> {
+pub fn preset_6<N: NodeData + Clone>() -> UnGraph<N, EdgeData> {
     let disc_blob_1 = BlobWrapper::Disc(DiscBlob {
         n_nodes: 16,
         n_member_candidates: 4,

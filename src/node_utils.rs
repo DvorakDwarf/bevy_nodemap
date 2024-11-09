@@ -70,7 +70,7 @@ pub fn calculate_blob_proximity<N: NodeData + Clone> (
                 (end_pos.z - start_pos.z).powf(2.0)
             ).sqrt();
             
-            start_node.get_graph_data().neighbor_distances.insert(end_idx, distance);
+            start_node.get_mut_graph_data().neighbor_distances.insert(end_idx, distance);
         }
     }
 
@@ -195,6 +195,7 @@ pub fn connect_members<N: NodeData>(
                 continue;
             }
 
+            dbg!(n_member_candidates);
             let candidates = get_candidates(rng, start_node, n_member_candidates);
 
             for (candidate_idx, candidate_distance) in candidates {

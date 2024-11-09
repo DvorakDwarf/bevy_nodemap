@@ -1,6 +1,6 @@
 use core::fmt::Debug;
 
-use bevy::{prelude::*, render::render_graph::Node};
+use bevy::prelude::*;
 use petgraph::graph::UnGraph;
 
 use super::{EdgeData, NodeData};

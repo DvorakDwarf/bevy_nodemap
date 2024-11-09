@@ -1,8 +1,6 @@
 use std::{collections::HashMap, usize};
 use core::fmt::Debug;
-
 use bevy::prelude::*;
-use petgraph::graph::NodeIndex;
 
 use super::{node_data_trait::GraphData, NodeData, NodeType};
 
@@ -13,10 +11,16 @@ pub struct GenericNode {
 }
 
 //CLONE !!!
+//Perhaps see getset crate for automatic getters/setters
 impl NodeData for GenericNode {
-    fn get_graph_data(&self) -> GraphData {
-        return self.graph_data.clone();
+    fn get_graph_data(&self) -> &GraphData {
+        return &self.graph_data;
     }
+
+    fn get_mut_graph_data(&mut self) -> &mut GraphData {
+        return &mut self.graph_data;
+    }
+
     fn default_with_idx(vec: Vec3, blob_idx: usize) -> GenericNode {
         // let n_connections = thread_rng().gen_range(2..6);
         // dbg!(n_connections);

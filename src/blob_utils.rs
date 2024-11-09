@@ -44,7 +44,7 @@ pub fn calculate_outer_distances<N: NodeData + Clone>(
 
             let distance = calculate_3d_distance(start_node, end_node);
             
-            start_node.get_graph_data().outer_distances.insert(end_idx, distance);
+            start_node.get_mut_graph_data().outer_distances.insert(end_idx, distance);
         }
     }
 
@@ -169,7 +169,7 @@ fn pick_blob_couples<N: NodeData> (
     return (graph, false);
 }
 
-pub fn connect_blobs<N: NodeData + Clone, B: Blob> (
+pub fn connect_blobs<N: NodeData + Clone> (
     mut graph: UnGraph<N, EdgeData>, 
     rng: &mut ChaCha8Rng,
     universe: &Universe) -> UnGraph<N, EdgeData>

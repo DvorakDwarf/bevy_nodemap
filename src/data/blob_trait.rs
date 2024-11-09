@@ -67,7 +67,7 @@ pub trait Blob {
                 .node_weights()
                 .filter(|x| (x.get_graph_data().role == NodeType::Center) || (x.get_graph_data().role == NodeType::Extension))
                 .map(|x| x.clone())
-                .collect::<Vec<&N>>()
+                .collect::<Vec<N>>()
                 .choose(rng)
                 .unwrap()
                 .get_vec();
@@ -156,11 +156,11 @@ pub trait Blob {
         });
     
         let mut origin_data = N::default_with_idx(origin_pos, blob_idx);
-        origin_data.get_graph_data().color = match local_graph.node_count() {
+        origin_data.get_mut_graph_data().color = match local_graph.node_count() {
             0 => Color::GOLD,
             _ => Color::BLUE
         };
-        origin_data.get_graph_data().role = match local_graph.node_count() {
+        origin_data.get_mut_graph_data().role = match local_graph.node_count() {
             0 => NodeType::Center,
             _ => NodeType::Extension
         };

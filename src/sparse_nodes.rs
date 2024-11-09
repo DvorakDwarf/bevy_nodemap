@@ -6,11 +6,11 @@ use rand_chacha::ChaCha8Rng;
 use crate::data::*;
 use crate::node_utils::{get_sorted_distances, is_member_clipping, rand_disc_position};
 
-fn get_sparse_pos<N: NodeData, B: Blob>(
+fn get_sparse_pos<N: NodeData>(
     //Mut ref because previous function uses mut ref
     graph: &mut UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe<B>
+    universe: &Universe
 ) -> Vec3 {
     let mut sparse_pos;
     loop {
@@ -34,16 +34,16 @@ fn get_sparse_pos<N: NodeData, B: Blob>(
     return sparse_pos;
 }
 
-fn place_sparse_node<N: NodeData, B: Blob>(
+fn place_sparse_node<N: NodeData>(
     graph: &mut UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe<B>
+    universe: &Universe
 ) -> bool {
     let sparse_pos = get_sparse_pos(graph, rng, universe);
 
     let mut sparse_data: N = NodeData::default_with_idx(sparse_pos, usize::MAX);
-    sparse_data.get_graph_data().color = Color::PURPLE;
-    sparse_data.get_graph_data().role = NodeType::Sparse;
+    sparse_data.get_mut_graph_data().color = Color::PURPLE;
+    sparse_data.get_mut_graph_data().role = NodeType::Sparse;
     
 
     for end_idx in graph.node_indices() {
@@ -52,7 +52,7 @@ fn place_sparse_node<N: NodeData, B: Blob>(
 
         let distance = sparse_pos.distance(end_pos);
         
-        sparse_data.get_graph_data().neighbor_distances.insert(end_idx, distance);
+        sparse_data.get_mut_graph_data().neighbor_distances.insert(end_idx, distance);
     }
 
     let mut unique_connections: Vec<usize> = Vec::new();
@@ -92,10 +92,10 @@ fn place_sparse_node<N: NodeData, B: Blob>(
     return true;
 }
 
-pub fn add_sparse_nodes<N: NodeData, B: Blob> (
+pub fn add_sparse_nodes<N: NodeData> (
     mut graph: UnGraph<N, EdgeData>,
     rng: &mut ChaCha8Rng,
-    universe: &Universe<B>
+    universe: &Universe
 ) -> UnGraph<N, EdgeData> 
 {
     //Used to be passed to get_sparse_pos

@@ -66,15 +66,15 @@ impl Blob for SphereSurfaceBlob {
         return self.rand_position(origin_pos, rng) * 1.0;
     }
 
-    fn generate_blob(
+    fn generate_blob<N: NodeData + Clone>(
         &self,
         universe: &Universe, 
         locations: &mut Vec<Location>,
         rng: &mut ChaCha8Rng,
         blob_idx: usize
-    ) -> UnGraph<NodeData, EdgeData>
+    ) -> UnGraph<N, EdgeData>
     {
-        let mut local_graph = UnGraph::<NodeData, EdgeData>::new_undirected();
+        let mut local_graph = UnGraph::<N, EdgeData>::new_undirected();
         
         local_graph = self.place_members(local_graph, universe, locations, rng, blob_idx);        
         local_graph = node_utils::calculate_blob_proximity(local_graph, rng);
@@ -88,11 +88,11 @@ impl Blob for SphereSurfaceBlob {
         //UGLY
         let local_graph = local_graph.map(|_, node_data| {
             let mut node_data = node_data.clone();
-            node_data.color = match node_data.color {
+            node_data.get_mut_graph_data().color = match node_data.get_graph_data().color {
                 Color::RED => Color::SALMON,
                 Color::GOLD => Color::YELLOW,
                 Color::BLUE => Color::CYAN,
-                _ => node_data.color
+                _ => node_data.get_graph_data().color
             };
 
             node_data

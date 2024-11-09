@@ -11,10 +11,8 @@ mod node_utils;
 mod blob_utils;
 mod presets;
 
-use data::{GraphState, NodeData, EdgeData};
+pub use data::{GraphState, NodeData, EdgeData, GenericNode};
 use petgraph::prelude::*;
-
-// pub struct NodegraphPlugin;
 
 pub struct NodegraphPlugin<N: NodeData> {
     pub graph: UnGraph<N, EdgeData>
@@ -36,25 +34,25 @@ impl<N: NodeData> NodegraphPlugin<N> {
 
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
-        let graph = presets::preset_og();
+        let graph = presets::preset_og::<GenericNode>();
         let graph_state = GraphState::new(graph);
 
         app
         .add_plugins(BillboardPlugin)
         .insert_resource(graph_state)
         .add_systems(Startup, (
-            spawn_graph,
+            spawn_graph::<GenericNode>,
             spawn_light
         ))
-        .add_systems(Update, draw_lines);
+        .add_systems(Update, draw_lines::<GenericNode>);
     }
 }
 
-fn spawn_graph(
+fn spawn_graph<N: NodeData + 'static>(
     mut commands: Commands,
     mut meshes:ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    global_state: Res<GraphState>,
+    global_state: Res<GraphState<N>>,
     asset_server: Res<AssetServer>
 ) {
     //The state of the graph we want to display
@@ -65,7 +63,7 @@ fn spawn_graph(
 
         //How node will look like
         let node_material = StandardMaterial {
-            base_color: node.color,
+            base_color: node.get_graph_data().color,
             reflectance: 0.02,
             unlit: false,
             ..default()

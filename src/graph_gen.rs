@@ -18,7 +18,7 @@ fn merge_graphs<N: NodeData + Clone>(
     for node in graph2.node_weights() {
         let mut node = node.clone();
 
-        node.get_graph_data().neighbor_distances = node.get_graph_data().neighbor_distances.iter().map(|x| {
+        node.get_mut_graph_data().neighbor_distances = node.get_graph_data().neighbor_distances.iter().map(|x| {
             let new_idx = x.0.index() + index_offset;
             return (NodeIndex::new(new_idx), *x.1);
         }).collect();
@@ -56,9 +56,14 @@ pub fn generate_graph<N: NodeData + Clone>
     //Place blobs
     for blob_idx in 0..universe.n_blobs {
         let selected_variant = &universe.blob_variants[dist.sample(&mut rng)];
-        let new_blob = selected_variant.generate_blob(
-            &universe, &mut locations, &mut rng, blob_idx
-        );
+
+        //TODO:
+        //Kinda stupid, but a problem caused by trait
+        let new_blob = match selected_variant{
+            BlobWrapper::Disc(v) => {v.generate_blob(&universe, &mut locations, &mut rng, blob_idx)}
+            BlobWrapper::Sphere(v) => {v.generate_blob(&universe, &mut locations, &mut rng, blob_idx)}
+            BlobWrapper::Surface(v) => {v.generate_blob(&universe, &mut locations, &mut rng, blob_idx)}
+        };
         merge_graphs(&mut graph, new_blob);
     }
 

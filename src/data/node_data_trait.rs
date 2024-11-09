@@ -16,11 +16,13 @@ pub struct GraphData {
 }
 
 pub trait NodeData : Send + Sync + Clone {
-    fn get_graph_data(&self) -> GraphData;
+    fn default_with_idx(vec: Vec3, blob_idx: usize) -> Self;
+    fn get_graph_data(&self) -> &GraphData;
+    fn get_mut_graph_data(&mut self) -> &mut GraphData;
+    //remove this eventually
     fn get_vec(&self) -> Vec3 {
         return self.get_graph_data().pos;
     }
-    fn default_with_idx(vec: Vec3, blob_idx: usize) -> Self;
 }
 
 // impl Clone for dyn NodeData {
