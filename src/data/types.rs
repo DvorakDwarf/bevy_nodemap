@@ -8,11 +8,6 @@ pub enum NodeType {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum BlobType {
-    Disc
-}
-
-#[derive(Debug, PartialEq)]
 pub enum VoidType {
     Sphere
 }

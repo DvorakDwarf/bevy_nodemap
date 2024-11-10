@@ -86,19 +86,19 @@ impl Blob for SphereBlob {
             self.fluff_requirement
         );
     
-        //UGLY
-        let local_graph = local_graph.map(|_, node_data| {
-            let mut node_data = node_data.clone();
-            node_data.get_mut_graph_data().color = match node_data.get_graph_data().color {
-                Color::RED => Color::GREEN,
-                Color::GOLD => Color::INDIGO,
-                Color::BLUE => Color::TEAL,
-                _ => node_data.get_graph_data().color
-            };
+        // //UGLY
+        // let local_graph = local_graph.map(|_, node_data| {
+        //     let mut node_data = node_data.clone();
+        //     node_data.get_mut_graph_data().color = match node_data.get_graph_data().color {
+        //         Color::RED => Color::GREEN,
+        //         Color::GOLD => Color::INDIGO,
+        //         Color::BLUE => Color::TEAL,
+        //         _ => node_data.get_graph_data().color
+        //     };
 
-            node_data
-        }, 
-        |_, edge_data| {*edge_data});
+        //     node_data
+        // }, 
+        // |_, edge_data| {*edge_data});
 
         return local_graph;
     }

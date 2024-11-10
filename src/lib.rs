@@ -34,17 +34,17 @@ impl<N: NodeData> NodegraphPlugin<N> {
 
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
-        let graph = presets::preset_og::<GenericNode>();
+        let graph = presets::preset_og::<N>();
         let graph_state = GraphState::new(graph);
 
         app
         .add_plugins(BillboardPlugin)
         .insert_resource(graph_state)
         .add_systems(Startup, (
-            spawn_graph::<GenericNode>,
+            spawn_graph::<N>,
             spawn_light
         ))
-        .add_systems(Update, draw_lines::<GenericNode>);
+        .add_systems(Update, draw_lines::<N>);
     }
 }
 
@@ -60,6 +60,10 @@ fn spawn_graph<N: NodeData + 'static>(
 
     for node_idx in graph.node_indices() {
         let node = graph.node_weight(node_idx).unwrap();
+
+        if node.get_graph_data().role == NodeType::Member {
+            dbg!(node.get_graph_data().color);   
+        }
 
         //How node will look like
         let node_material = StandardMaterial {
