@@ -34,8 +34,7 @@ impl<N: NodeData> NodegraphPlugin<N> {
 
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
-        let graph = presets::preset_og::<N>();
-        let graph_state = GraphState::new(graph);
+        let graph_state = GraphState::new(self.graph.clone());
 
         app
         .add_plugins(BillboardPlugin)

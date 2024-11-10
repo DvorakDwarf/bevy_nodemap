@@ -15,6 +15,20 @@ pub struct GraphData {
     pub outer_distances: HashMap<NodeIndex, f32>
 }
 
+impl Default for GraphData {
+    fn default() -> GraphData {
+         return GraphData {
+            pos: Vec3::ZERO,
+            color: Color::RED,
+            blob_idx: 0,
+            role: NodeType::Member,
+            n_connections: 999,
+            neighbor_distances: HashMap::new(),
+            outer_distances: HashMap::new()
+         };
+    }
+}
+
 pub trait NodeData : Send + Sync + Clone {
     fn default_with_idx(vec: Vec3, blob_idx: usize) -> Self;
     fn get_graph_data(&self) -> &GraphData;
