@@ -15,17 +15,17 @@ pub use data::{GraphState, NodeData, EdgeData, GenericNode, GraphData, NodeType}
 use petgraph::prelude::*;
 
 pub struct NodegraphPlugin<N: NodeData> {
-    pub graph: UnGraph<N, EdgeData>
+    pub graph: &UnGraph<N, EdgeData>
 }
 
 impl<N: NodeData> NodegraphPlugin<N> {
     pub fn default() -> NodegraphPlugin<N> {
         NodegraphPlugin { 
-            graph: presets::preset_og() 
+            graph: &presets::preset_og() 
         }
     }
 
-   pub fn from_graph(graph: UnGraph<N, EdgeData>) -> NodegraphPlugin<N> {
+   pub fn from_graph(graph: &UnGraph<N, EdgeData>) -> NodegraphPlugin<N> {
         NodegraphPlugin { 
             graph
         }
