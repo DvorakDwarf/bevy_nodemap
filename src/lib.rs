@@ -15,17 +15,17 @@ pub use data::{GraphState, NodeData, EdgeData, GenericNode, GraphData, NodeType}
 use petgraph::prelude::*;
 
 pub struct NodegraphPlugin<N: NodeData> {
-    pub graph: &UnGraph<N, EdgeData>
+    pub graph: UnGraph<N, EdgeData>
 }
 
 impl<N: NodeData> NodegraphPlugin<N> {
     pub fn default() -> NodegraphPlugin<N> {
         NodegraphPlugin { 
-            graph: &presets::preset_og() 
+            graph: presets::preset_og() 
         }
     }
 
-   pub fn from_graph(graph: &UnGraph<N, EdgeData>) -> NodegraphPlugin<N> {
+   pub fn from_graph(graph: UnGraph<N, EdgeData>) -> NodegraphPlugin<N> {
         NodegraphPlugin { 
             graph
         }
@@ -43,13 +43,16 @@ impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
             spawn_graph::<N>,
             spawn_light
         ))
-        .add_systems(Update, draw_lines::<N>);
+        .add_systems(Update, (
+            update_graph::<N>,
+            draw_lines::<N>
+        ));
     }
 }
 
 fn spawn_graph<N: NodeData + 'static>(
     mut commands: Commands,
-    mut meshes:ResMut<Assets<Mesh>>,
+    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     global_state: Res<GraphState<N>>,
     asset_server: Res<AssetServer>
@@ -60,9 +63,9 @@ fn spawn_graph<N: NodeData + 'static>(
     for node_idx in graph.node_indices() {
         let node = graph.node_weight(node_idx).unwrap();
 
-        if node.get_graph_data().role == NodeType::Member {
-            dbg!(node.get_graph_data().color);   
-        }
+        // if node.get_graph_data().role == NodeType::Member {
+        //     dbg!(node.get_graph_data().color);   
+        // }
 
         //How node will look like
         let node_material = StandardMaterial {
@@ -71,7 +74,7 @@ fn spawn_graph<N: NodeData + 'static>(
             unlit: false,
             ..default()
         };
-        let node_handle = materials.add(node_material.clone());
+        let node_handle = materials.add(node_material);
 
         //Find where to put node
         let mut node_transform = Transform::from_translation(node.get_vec());
@@ -83,7 +86,7 @@ fn spawn_graph<N: NodeData + 'static>(
             transform: node_transform,
             ..default()
         };
-        commands.spawn(ball);
+        let ball_handle = commands.spawn(ball);
 
         //Create text underneath (explore options of crate)
         //Font used for text under nodes
@@ -103,6 +106,12 @@ fn spawn_graph<N: NodeData + 'static>(
             .with_justify(JustifyText::Center),
             ..default()
         });
+    }
+}
+
+fn update_graph<N: NodeData + 'static>(mut meshes: ResMut<Assets<Mesh>>) {
+    for mesh in meshes.iter() {
+        dbg!(&mesh);
     }
 }
 

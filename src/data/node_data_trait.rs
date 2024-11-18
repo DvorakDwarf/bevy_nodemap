@@ -12,7 +12,8 @@ pub struct GraphData {
     pub role: NodeType,
     pub n_connections: usize,
     pub neighbor_distances: HashMap<NodeIndex, f32>,
-    pub outer_distances: HashMap<NodeIndex, f32>
+    pub outer_distances: HashMap<NodeIndex, f32>,
+    // pub entity_id: Entity //The entity associated with this node
 }
 
 impl Default for GraphData {
