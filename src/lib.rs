@@ -34,6 +34,7 @@ impl<N: NodeData> NodegraphPlugin<N> {
 
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
+        //build is only run once. GraphState is the real one we are changing
         let graph_state = GraphState::new(self.graph.clone());
 
         app
