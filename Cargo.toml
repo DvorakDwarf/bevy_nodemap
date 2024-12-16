@@ -4,16 +4,16 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "=0.13.2" }
-bevy-inspector-egui = "0.24.0"
-bevy_egui = "0.27.0"
-bevy_flycam = "0.13.0"
-bevy_mod_billboard = "0.6.0"
+bevy = "0.15.0"
+bevy_flycam = "0.15.0"
+bevy-inspector-egui = "0.28.0"
+bevy_egui = "0.31.1"
 egui = "0.27.2"
 petgraph = "0.6.5"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
 simple-easing = "1.0.1"
+bevy_mod_billboard = "0.7.0"
 
 [profile.release]
 debug = true

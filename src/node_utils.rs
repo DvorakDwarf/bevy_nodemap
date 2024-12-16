@@ -8,6 +8,7 @@ use rand::{self, Rng};
 use rand::seq::SliceRandom;
 use rand_chacha::ChaCha8Rng;
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 
 use crate::data::{EdgeData, NodeData};
 
@@ -151,7 +152,7 @@ fn add_blob_fluff<N: NodeData> (
                 graph.add_edge(
                     start_idx, 
                     candidate_idx, 
-                    EdgeData::with_color(candidate_distance, Color::GRAY)
+                    EdgeData::with_color(candidate_distance, css::GRAY)
                 );
                 println!("Added fluff between {:?} and {:?}", start_idx, candidate_idx);
 

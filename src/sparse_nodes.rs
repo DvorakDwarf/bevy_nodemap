@@ -1,5 +1,5 @@
 use bevy::math::Vec3;
-use bevy::prelude::Color;
+use bevy::color::palettes::css;
 use petgraph::graph::{NodeIndex, UnGraph};
 use rand_chacha::ChaCha8Rng;
 
@@ -42,7 +42,7 @@ fn place_sparse_node<N: NodeData>(
     let sparse_pos = get_sparse_pos(graph, rng, universe);
 
     let mut sparse_data: N = NodeData::default_with_idx(sparse_pos, usize::MAX);
-    sparse_data.get_mut_graph_data().color = Color::PURPLE;
+    sparse_data.get_mut_graph_data().color = css::PURPLE;
     sparse_data.get_mut_graph_data().role = NodeType::Sparse;
     
 
@@ -84,7 +84,7 @@ fn place_sparse_node<N: NodeData>(
         graph.add_edge(
             sparse_idx, 
             candidate_idx, 
-            EdgeData::with_color(candidate_distance, Color::PURPLE)
+            EdgeData::with_color(candidate_distance, css::PURPLE)
         );
         println!("Sparse edge between {:?} and {:?}", sparse_idx, candidate_idx);
     }

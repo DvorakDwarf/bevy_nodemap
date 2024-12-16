@@ -1,6 +1,7 @@
 use std::{collections::HashMap, usize};
 use core::fmt::Debug;
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 
 use super::{node_data_trait::GraphData, NodeData, NodeType};
 
@@ -28,7 +29,7 @@ impl NodeData for GenericNode {
         return GenericNode {
             graph_data: GraphData {
                 pos: vec,
-                color: Color::RED,
+                color: css::RED,
                 blob_idx: blob_idx, //usize::MAX if sparse. Jank
                 role: NodeType::Member,
                 n_connections: 999,

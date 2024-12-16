@@ -1,18 +1,19 @@
 use core::fmt::Debug;
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct EdgeData {
     pub length: f32,
-    pub color: Color
+    pub color: Srgba
 }
 
 impl EdgeData {
     pub fn new(length: f32) -> EdgeData {
         let color = if length >  50.0 {
-            Color::PURPLE
+            css::PURPLE
         } else {
-            Color::WHITE
+            css::WHITE
         };
 
         return EdgeData {
@@ -21,7 +22,7 @@ impl EdgeData {
         };
     }
 
-    pub fn with_color(length: f32, color: Color) -> EdgeData {
+    pub fn with_color(length: f32, color: Srgba) -> EdgeData {
         return EdgeData {
             length,
             color

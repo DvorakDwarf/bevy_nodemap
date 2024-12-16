@@ -1,13 +1,14 @@
 use std::{collections::HashMap, fmt::Debug, usize};
 use petgraph::graph::NodeIndex;
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 
 use super::NodeType;
 
 #[derive(Debug, Clone)]
 pub struct GraphData {
     pub pos: Vec3,
-    pub color: Color,
+    pub color: Srgba,
     pub blob_idx: usize,
     pub role: NodeType,
     pub n_connections: usize,
@@ -20,7 +21,7 @@ impl Default for GraphData {
     fn default() -> GraphData {
          return GraphData {
             pos: Vec3::ZERO,
-            color: Color::RED,
+            color: css::RED,
             blob_idx: 0,
             role: NodeType::Member,
             n_connections: 999,

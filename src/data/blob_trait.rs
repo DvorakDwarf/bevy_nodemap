@@ -1,6 +1,7 @@
 use core::fmt::Debug;
 
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 use petgraph::graph::UnGraph;
 use rand_chacha::ChaCha8Rng;
 use rand::prelude::SliceRandom;
@@ -157,8 +158,8 @@ pub trait Blob {
     
         let mut origin_data = N::default_with_idx(origin_pos, blob_idx);
         origin_data.get_mut_graph_data().color = match local_graph.node_count() {
-            0 => Color::GOLD,
-            _ => Color::BLUE
+            0 => css::GOLD,
+            _ => css::BLUE
         };
         origin_data.get_mut_graph_data().role = match local_graph.node_count() {
             0 => NodeType::Center,

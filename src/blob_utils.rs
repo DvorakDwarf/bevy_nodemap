@@ -1,5 +1,6 @@
 use bevy::math::Vec3;
-use bevy::prelude::Color;
+use bevy::prelude::*;
+use bevy::color::palettes::css;
 use petgraph::algo;
 use petgraph::graph::{NodeIndex, UnGraph};
 use rand;
@@ -107,7 +108,7 @@ fn connect_blob<N: NodeData> (
         graph.update_edge(
             connection.0, 
             connection.1, 
-            EdgeData::with_color(connection.2, Color::TOMATO)
+            EdgeData::with_color(connection.2, css::TOMATO)
         );
     }
 

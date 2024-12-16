@@ -1,6 +1,7 @@
 //THE container of the plugin
 
 use bevy::prelude::*;
+use bevy::color::palettes::css;
 use bevy_mod_billboard::prelude::*;
 
 mod data;
@@ -32,13 +33,26 @@ impl<N: NodeData> NodegraphPlugin<N> {
     }
 }
 
+#[derive(Component, Debug)]
+pub struct NodeId {
+    pub id: NodeIndex
+}
+
+impl NodeId {
+    fn from_id(id: NodeIndex) -> NodeId {
+        return NodeId {
+            id
+        }
+    }
+}
+
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
         //build is only run once. GraphState is the real one we are changing
         let graph_state = GraphState::new(self.graph.clone());
 
         app
-        .add_plugins(BillboardPlugin)
+        // .add_plugins(BillboardPlugin) //Not using plugin until it's ported
         .insert_resource(graph_state)
         .add_systems(Startup, (
             spawn_graph::<N>,
@@ -70,50 +84,57 @@ fn spawn_graph<N: NodeData + 'static>(
 
         //How node will look like
         let node_material = StandardMaterial {
-            base_color: node.get_graph_data().color,
+            base_color: Color::Srgba(node.get_graph_data().color),
             reflectance: 0.02,
             unlit: false,
             ..default()
         };
-        let node_handle = materials.add(node_material);
 
-        //Find where to put node
-        let mut node_transform = Transform::from_translation(node.get_vec());
+        let node_transform = Transform::from_translation(node.get_vec());
 
-        //Create the 3D node
-        let ball = PbrBundle {
-            mesh: meshes.add(Mesh::from(Sphere::new(1.0))),
-            material: node_handle.clone(),
-            transform: node_transform,
-            ..default()
-        };
-        let ball_handle = commands.spawn(ball);
+        let ball_handle = commands.spawn((
+            Mesh3d(meshes.add(Mesh::from(Sphere::new(1.0)))),
+            MeshMaterial3d(materials.add(node_material)),
+            node_transform,
+        )).insert(NodeId::from_id(node_idx));
+
+        // commands.spawn((
+        //     Mesh2d(meshes.add(Circle::new(100.0))),
+        //     MeshMaterial2d(materials.add(Color::srgb(7.5, 0.0, 7.5))),
+        //     Transform::from_translation(Vec3::new(-200., 0., 0.)),
+        // ));
+        
 
         //Create text underneath (explore options of crate)
         //Font used for text under nodes
-        let font_handle = asset_server.load("FiraSans-Regular.ttf");
-        
-        node_transform.translation.y += -1.25;
-        commands.spawn(BillboardTextBundle {
-            transform: node_transform.with_scale(Vec3::splat(0.0085)),
-            text: Text::from_section(
-                format!("{}", node_idx.index()),
-                TextStyle {
-                    font: font_handle.clone(),
-                    font_size: 60.0,
-                    color: Color::WHITE,
-                },
-            )
-            .with_justify(JustifyText::Center),
-            ..default()
-        });
+        // let font_handle: Handle<Font> = asset_server.load("FiraSans-Regular.ttf");
+
+        // TODO: BEVY_MOD_BILLBOARD NOT PORTED TO 0.15 YET
+        // node_transform.translation.y += -1.25;
+        // commands.spawn(BillboardTextBundle {
+        //     transform: node_transform.with_scale(Vec3::splat(0.0085)),
+        //     text: Text::from_section(
+        //         format!("{}", node_idx.index()),
+        //         TextSection {
+        //             font: font_handle.clone(),
+        //             font_size: 60.0,
+        //             color: css::WHITE,
+        //         },
+        //     )
+        //     .with_justify(JustifyText::Center),
+        //     ..default()
+        // });
     }
 }
 
-fn update_graph<N: NodeData + 'static>(mut meshes: ResMut<Assets<Mesh>>) {
-    for mesh in meshes.iter() {
-        dbg!(&mesh);
-    }
+fn update_graph<N: NodeData + 'static>(
+    global_state: Res<GraphState<N>>,
+    // query: Query<&MeshMaterial3d>
+) {
+    // // global_state.graph.node_weights_mut().choose(&mut rand::thread_rng()).unwrap().get_mut_graph_data().color = css::LIME_GREEN;
+    // for item in query.iter() {
+    //     dbg!(&item);
+    // }
 }
 
 fn draw_lines<N: NodeData + 'static >(mut gizmos: Gizmos, global_state: Res<GraphState<N>>) {
@@ -129,17 +150,8 @@ fn draw_lines<N: NodeData + 'static >(mut gizmos: Gizmos, global_state: Res<Grap
                 let edge = graph.edge_weight(edge_idx).unwrap();
                 let n1 = graph.node_weight(n1).unwrap();
                 let n2 = graph.node_weight(n2).unwrap();
-
-                let (line, position) = Segment3d::from_points(n1.get_vec(), n2.get_vec());
                 
-                let edge_color = edge.color;
-
-                gizmos.primitive_3d(
-                    line,
-                    position,
-                    Quat::default(),
-                    edge_color
-                );
+                gizmos.line(n1.get_vec(), n2.get_vec(), edge.color);
             },
             None => println!("Unexpected None edge"),
         }
@@ -151,7 +163,7 @@ fn spawn_light(
 ) {
     // ambient light
     commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
+        color: Color::Srgba(css::WHITE),
         brightness: 700.0,
     });
 
