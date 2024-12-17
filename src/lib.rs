@@ -33,7 +33,7 @@ impl<N: NodeData> NodegraphPlugin<N> {
     }
 }
 
-#[derive(Component, Debug, QueryData)]
+#[derive(Component, Debug)]
 pub struct NodeId {
     pub id: NodeIndex
 }
@@ -129,7 +129,7 @@ fn spawn_graph<N: NodeData + 'static>(
 
 fn update_graph<N: NodeData + 'static>(
     global_state: Res<GraphState<N>>,
-    query: Query<(NodeId, &MeshMaterial3d<StandardMaterial>)>,
+    query: Query<(&NodeId, &MeshMaterial3d<StandardMaterial>)>,
     mut materials: ResMut<Assets<StandardMaterial>>
 ) {
     // global_state.graph.node_weights_mut().choose(&mut rand::thread_rng()).unwrap().get_mut_graph_data().color = css::LIME_GREEN;
