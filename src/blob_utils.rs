@@ -1,5 +1,4 @@
 use bevy::math::Vec3;
-use bevy::prelude::*;
 use bevy::color::palettes::css;
 use petgraph::algo;
 use petgraph::graph::{NodeIndex, UnGraph};
