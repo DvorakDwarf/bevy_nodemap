@@ -1,6 +1,6 @@
 //THE container of the plugin
 
-use bevy::prelude::*;
+use bevy::{ecs::query::QueryData, prelude::*};
 use bevy::color::palettes::css;
 use bevy_mod_billboard::prelude::*;
 
@@ -33,7 +33,7 @@ impl<N: NodeData> NodegraphPlugin<N> {
     }
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, QueryData)]
 pub struct NodeId {
     pub id: NodeIndex
 }
@@ -129,12 +129,19 @@ fn spawn_graph<N: NodeData + 'static>(
 
 fn update_graph<N: NodeData + 'static>(
     global_state: Res<GraphState<N>>,
-    // query: Query<&MeshMaterial3d>
+    query: Query<(NodeId, &MeshMaterial3d<StandardMaterial>)>,
+    mut materials: ResMut<Assets<StandardMaterial>>
 ) {
-    // // global_state.graph.node_weights_mut().choose(&mut rand::thread_rng()).unwrap().get_mut_graph_data().color = css::LIME_GREEN;
-    // for item in query.iter() {
-    //     dbg!(&item);
-    // }
+    // global_state.graph.node_weights_mut().choose(&mut rand::thread_rng()).unwrap().get_mut_graph_data().color = css::LIME_GREEN;
+    for (node_idx, material_handle) in query.iter() {
+        if let Some(material) = materials.get_mut(material_handle) {
+            let node = global_state.graph.node_weight(node_idx.id).unwrap();
+            if Color::Srgba(node.get_graph_data().color) != material.base_color {
+                material.base_color = Color::Srgba(node.get_graph_data().color);
+            }
+        }
+    }
+
 }
 
 fn draw_lines<N: NodeData + 'static >(mut gizmos: Gizmos, global_state: Res<GraphState<N>>) {
