@@ -97,12 +97,6 @@ fn spawn_graph<N: NodeData + 'static>(
             MeshMaterial3d(materials.add(node_material)),
             node_transform,
         )).insert(NodeId::from_id(node_idx));
-
-        // commands.spawn((
-        //     Mesh2d(meshes.add(Circle::new(100.0))),
-        //     MeshMaterial2d(materials.add(Color::srgb(7.5, 0.0, 7.5))),
-        //     Transform::from_translation(Vec3::new(-200., 0., 0.)),
-        // ));
         
 
         //Create text underneath (explore options of crate)
