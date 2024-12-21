@@ -92,11 +92,12 @@ fn spawn_graph<N: NodeData + 'static>(
 
         let node_transform = Transform::from_translation(node.get_vec());
 
-        let ball_handle = commands.spawn((
+        commands.spawn((
             Mesh3d(meshes.add(Mesh::from(Sphere::new(1.0)))),
             MeshMaterial3d(materials.add(node_material)),
             node_transform,
-        )).insert(NodeId::from_id(node_idx));
+            NodeId::from_id(node_idx)
+        ));
         
 
         //Create text underneath (explore options of crate)
