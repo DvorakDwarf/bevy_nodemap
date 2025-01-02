@@ -97,7 +97,10 @@ fn spawn_graph<N: NodeData + 'static>(
             MeshMaterial3d(materials.add(node_material)),
             node_transform,
             NodeId::from_id(node_idx)
-        ));
+        )).observe(|trigger: Trigger<Pointer<Click>>, mut commands: Commands| {
+            println!("Entity {:?} goes BOOM!", trigger.entity());
+            commands.entity(trigger.entity()).despawn();
+        });
         
 
         //Create text underneath (explore options of crate)
