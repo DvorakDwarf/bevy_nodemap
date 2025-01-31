@@ -46,6 +46,9 @@ impl NodeId {
     }
 }
 
+#[derive(Event)]
+pub struct NodeSelected(pub NodeIndex);
+
 impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
     fn build(&self, app: &mut App) {
         //build is only run once. GraphState is the real one we are changing
@@ -61,7 +64,9 @@ impl<N: NodeData + 'static> Plugin for NodegraphPlugin<N> {
         .add_systems(Update, (
             update_graph::<N>,
             draw_lines::<N>
-        ));
+        ))
+        .add_event::<NodeSelected>();
+        
     }
 }
 
@@ -70,7 +75,7 @@ fn spawn_graph<N: NodeData + 'static>(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     global_state: Res<GraphState<N>>,
-    asset_server: Res<AssetServer>
+    // asset_server: Res<AssetServer>
 ) {
     //The state of the graph we want to display
     let graph = &global_state.graph;
@@ -97,9 +102,13 @@ fn spawn_graph<N: NodeData + 'static>(
             MeshMaterial3d(materials.add(node_material)),
             node_transform,
             NodeId::from_id(node_idx)
-        )).observe(|trigger: Trigger<Pointer<Click>>, mut commands: Commands| {
-            println!("Entity {:?} goes BOOM!", trigger.entity());
-            commands.entity(trigger.entity()).despawn();
+        )).observe(
+            |trigger: Trigger<Pointer<Click>>,
+            node_id_query: Query<&NodeId>,
+            mut events: EventWriter<NodeSelected>| {
+            let picked_node: Entity = trigger.entity();
+            let picked_idx: NodeIndex = node_id_query.get(picked_node).unwrap().id;
+            events.send(NodeSelected(picked_idx));
         });
         
 
